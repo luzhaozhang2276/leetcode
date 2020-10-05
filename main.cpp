@@ -2,36 +2,52 @@
 
 using namespace std;
 
+/// 法一:哈希表
+//class Solution {
+//public:
+//    int findRepeatNumber(vector<int>& nums) {
+//        unordered_map<int, bool> map;
+//        for(int num : nums) {
+//            if(map[num]) return num;
+//            map[num] = true;
+//        }
+//        return -1;
+//    }
+//};
+
+/// 法二:原地交换
 class Solution {
 public:
-    vector<int> twoSum(vector<int>& nums, int target) {
-        unordered_map<int, int> rem;
-        vector<int> res;
-        for (int i = 0; i < nums.size(); ++i) {
-            if (rem.find(target - nums[i] ) != rem.end()) {
-                res.push_back(rem[target - nums[i]]);
-                res.push_back(i);
-                break;
+    int findRepeatNumber(vector<int>& nums) {
+        int i=0;
+        while (i < nums.size())
+        {
+            if(nums[i] == i)
+            {
+                i++;
+                continue;
             }
-            rem[nums[i]] = i;
+
+            else if(nums[nums[i]] == nums[i])
+                return nums[i];
+            else
+                swap(nums[i], nums[nums[i]]);
         }
-        return res;
+        return -1;
     }
 };
 
 int main() {
-    vector<int> nums, rems;
+    vector<int> nums;
     nums.push_back(2);
-    nums.push_back(11);
-    nums.push_back(12);
-    nums.push_back(13);
-    nums.push_back(14);
-    nums.push_back(7);
+    nums.push_back(3);
+    nums.push_back(1);
+    nums.push_back(0);
+    nums.push_back(2);
+    nums.push_back(5);
+    nums.push_back(3);
     Solution s;
-    rems = s.twoSum(nums, 9);
-
-    for (auto &p:rems)
-        cout << p << endl;
+    cout << s.findRepeatNumber(nums) << endl;
 
     cout << "\nFinish" << endl;
     return 0;
