@@ -2,58 +2,57 @@
 
 using namespace std;
 
-/// 法一:哈希表
-//class Solution {
-//public:
-//    int findRepeatNumber(vector<int>& nums) {
-//        unordered_map<int, bool> map;
-//        for(int num : nums) {
-//            if(map[num]) return num;
-//            map[num] = true;
-//        }
-//        return -1;
-//    }
-//};
-
-/// 法二:原地交换
 class Solution {
 public:
-    int findRepeatNumber(vector<int>& nums) {
-        int i=0;
-        while (i < nums.size())
-        {
-            if(nums[i] == i)
-            {
-                i++;
-                continue;
-            }
+    bool findNumberIn2DArray(vector<vector<int>>& matrix, int target) {
+        if (matrix.empty())
+            return false;
+        bool found = false;
+        int row = 0;
+        int column = matrix.front().size()-1;
 
-            else if(nums[nums[i]] == nums[i])
-                return nums[i];
+        while (row < matrix.size() && column >=0)
+        {
+            if (matrix[row][column] == target)
+            {
+                found = true;
+                break;
+            } else if (matrix[row][column] > target)
+                --column;
             else
-                swap(nums[i], nums[nums[i]]);
+                ++row;
         }
-        return -1;
+
+        return found;
     }
 };
 
+//class Solution {
+//public:
+//    bool findNumberIn2DArray(vector<vector<int>>& matrix, int target) {
+//        int i = matrix.size() - 1, j = 0;
+//        while(i >= 0 && j < matrix[0].size())
+//        {
+//            if(matrix[i][j] > target) i--;
+//            else if(matrix[i][j] < target) j++;
+//            else return true;
+//        }
+//        return false;
+//    }
+//};
+
 int main() {
-    vector<int> nums;
-    nums.push_back(2);
-    nums.push_back(3);
-    nums.push_back(1);
-    nums.push_back(0);
-    nums.push_back(2);
-    nums.push_back(5);
-    nums.push_back(3);
+    vector<vector<int> > nums;
+    nums.push_back({1,4,7,11,15});
+    nums.push_back({2,5,8,12,19});
+    nums.push_back({3,6,9,16,22});
+    nums.push_back({10,13,14,17,24});
+    nums.push_back({18,21,23,26,30});
+
     Solution s;
-    cout << s.findRepeatNumber(nums) << endl;
+    int target = 20;
+    cout << s.findNumberIn2DArray(nums, target) << endl;
 
     cout << "\nFinish" << endl;
     return 0;
 }
-
-/**
- * @note unordered_map 哈希表 查找问题
- * https://blog.csdn.net/wangdongwei0/article/details/97035416
- */
