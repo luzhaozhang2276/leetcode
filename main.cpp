@@ -102,9 +102,11 @@ int main() {
 
     cout << "\nprint new list" << endl;
     Solution s;
+
     vector<int> result(s.reversePrint(head->next));     /// leetcode 中,单链表的头指针对应的是头结点
     for(auto ptr:result)
         cout << ptr << endl;
+
 
     cout << "\nFinish" << endl;
     return 0;
