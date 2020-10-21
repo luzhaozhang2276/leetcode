@@ -3,110 +3,79 @@
 using namespace std;
 
 /**
- * Definition for singly-linked list.
- * struct ListNode {
+ * Definition for a binary tree node.
+ * struct TreeNode {
  *     int val;
- *     ListNode *next;
- *     ListNode(int x) : val(x), next(NULL) {}
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
  * };
  */
 
-struct ListNode {
+struct TreeNode {
     int val;
-    ListNode *next;
-    ListNode(int x) : val(x), next(NULL) {}     // 构造函数
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
 };
 
 class Solution {
 public:
-    std::vector<int> res;
-    vector<int> reversePrint(ListNode* head) {
+    TreeNode* buildTree(vector<int>& preorder, vector<int>& inorder) {
+        // if (preorder == nullptr || inorder == nullptr)
+        // return nullptr;
+        return buildCore(preorder.begin(), preorder.end(), inorder.begin(), inorder.end());
+    }
+    TreeNode* buildCore(vector<int>::iterator preBegin, vector<int>::iterator preEnd, vector<int>::iterator inBegin, vector<int>::iterator inEnd ) {
+#if 0
+        // 先序遍历创建根节点
+        int rootValue = *preBegin;
+        TreeNode* root = new TreeNode(rootValue);
 
-#if 1   // 入栈法
-        // std::stack<ListNode*> nodes;     // 只需要保存val即可,即stack<int>
-        stack<int> values;
-        while (head)
+        // 若仅有一个数据
+        if (preBegin == preEnd)
         {
-            values.push(head->val);
-            head = head->next;
+            if (inBegin == inEnd && *preBegin == *inBegin)
+                return root;
         }
 
-        while(!values.empty())
-        {
-            res.push_back(values.top());
-            values.pop();
-        }
-#elif 0 // reverse法
-        while (head)
-        {
-            res.push_back(head->val);
-            head = head->next;
-        }
-        reverse(res.begin(), res.end());
-#elif 0 // 递归法
-        if(!head)
-            return res;
-        reversePrint(head->next);
-        res.push_back(head->val);
-        return res;
-#elif 0 // 改变链表结构法
-        ListNode *pre = nullptr;
-        ListNode *cur = head;
-        ListNode *next = head;
-        while (cur)
-        {
-            next = cur->next;
-            cur->next = pre;
-            pre = cur;
-            cur = next;
-        }
-        while (pre)
-        {
-            res.push_back(pre->val);
-            pre = pre->next;
-        }
+        // 多个数据,中序遍历找根节点
+        auto rootInorder = inBegin;
+        while (rootInorder <= inEnd && *rootInorder != rootValue)
+            ++rootInorder;
+        cout << *rootInorder << endl;
+
+        // 遍历构建左右子树
+        int leftLength = rootInorder - inBegin;
+        auto leftEnd = inBegin + leftLength;
+        if (leftLength > 0)     // 左子树
+            root->left = buildCore(preBegin+1, preBegin+(rootInorder - inBegin), inBegin, rootInorder);
+        if (leftLength < preEnd - preBegin)       // 右子树
+            root->right = buildCore(preBegin+(rootInorder - inBegin)+1, preEnd, rootInorder+1, inEnd);
+#else
+
+        if(inEnd == inBegin)
+            return NULL;
+        TreeNode* root = new TreeNode(*preBegin);
+        auto rootInorder = find(inBegin, inEnd, *preBegin);
+        root->left = buildCore(preBegin+1, preBegin+(rootInorder - inBegin), inBegin, rootInorder);
+        root->right = buildCore(preBegin+(rootInorder - inBegin)+1, preEnd, rootInorder+1, inEnd);
 #endif
-        return res;
+        return root;
     }
 };
-/**
- * @brief 4种方法:reverse反转法,堆栈法,递归法,改变链表结构法
- * @note
- */
+
 int main() {
-    // 头插法
-    vector<int> init{2,3,1};
-    ListNode* head = (ListNode*)malloc(sizeof(ListNode));
-    head->next = nullptr;
-    for(auto ptr:init)
-    {
-        ListNode *p = (ListNode*)malloc(sizeof(ListNode));
-        p->val = ptr;
-        p->next = nullptr;
-        if(!head->next)
-            head->next = p;
-        else
-        {
-            p->next = head->next;
-            head->next = p;
-        }
-    }
+    vector<int> preorder{3,9,20,15,7};
+    vector<int> inorder{9,3,15,20,7};
+    TreeNode* root = new TreeNode(3);
+    root->left = new TreeNode(9);
+    root->right = new TreeNode(20);
+    root->right->left = new TreeNode(15);
+    root->right->right = new TreeNode(7);
 
-    cout << "print init list" << endl;
-    ListNode* p = head;
-    while(p->next)
-    {
-        cout << p->next->val << endl;
-        p = p->next;
-    }
-
-    cout << "\nprint new list" << endl;
     Solution s;
-
-    vector<int> result(s.reversePrint(head->next));     /// leetcode 中,单链表的头指针对应的是头结点
-    for(auto ptr:result)
-        cout << ptr << endl;
-
+    TreeNode* reTree = s.buildTree(preorder, inorder);
 
     cout << "\nFinish" << endl;
     return 0;
