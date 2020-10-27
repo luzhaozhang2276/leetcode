@@ -2,53 +2,31 @@
 
 using namespace std;
 
-class CQueue {
-    stack<int> stack1,stack2;
+class Solution {
 public:
-    CQueue() {
-        while (!stack1.empty()) {
-            stack1.pop();
-        }
-        while (!stack2.empty()) {
-            stack2.pop();
-        }
-    }
+    int fib(int n) {
+        if (n < 2)
+            return n ? 1:0;
 
-    void appendTail(int value) {
-        stack1.push(value);
-    }
+        int fibNMinusOne(1);
+        int finBMinusTwo(0);
+        int fibN(0);
 
-    int deleteHead() {
-        // 如果第二个栈为空
-        if (stack2.empty()) {
-            while (!stack1.empty()) {
-                stack2.push(stack1.top());
-                stack1.pop();
-            }
+        while (n>=2)
+        {
+            fibN = (fibNMinusOne + finBMinusTwo)%1000000007;
+            finBMinusTwo = fibNMinusOne;
+            fibNMinusOne = fibN;
+            --n;
         }
-        if (stack2.empty()) {
-            return -1;
-        } else {
-            int deleteItem = stack2.top();
-            stack2.pop();
-            return deleteItem;
-        }
+
+        return fibN;
     }
 };
 
-/**
- * Your CQueue object will be instantiated and called as such:
- * CQueue* obj = new CQueue();
- * obj->appendTail(value);
- * int param_2 = obj->deleteHead();
- */
-
 int main() {
-    CQueue* obj = new CQueue();
-    obj->appendTail(3);
-    cout << obj->deleteHead();
-    cout << obj->deleteHead();
-    cout << obj->deleteHead();
+    Solution s;
+    cout << s.fib(1) << endl;
 
     cout << "\nFinish" << endl;
     return 0;
