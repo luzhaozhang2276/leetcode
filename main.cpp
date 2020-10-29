@@ -4,12 +4,12 @@ using namespace std;
 
 class Solution {
 public:
-    int fib(int n) {
+    int numWays(int n) {
         if (n < 2)
-            return n ? 1:0;
+            return 1;
 
         int fibNMinusOne(1);
-        int finBMinusTwo(0);
+        int finBMinusTwo(1);
         int fibN(0);
 
         while (n>=2)
@@ -26,7 +26,7 @@ public:
 
 int main() {
     Solution s;
-    cout << s.fib(1) << endl;
+    cout << s.numWays(7) << endl;
 
     cout << "\nFinish" << endl;
     return 0;
