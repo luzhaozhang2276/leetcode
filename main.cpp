@@ -1,6 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+/*
 class Solution {
 public:
     bool exist(vector<vector<char>>& board, const string& word) {
@@ -40,16 +41,64 @@ private:
         return res;
     }
 };
+//    vector<vector<char>> board = {{'A','B','C','E'},{'S','F','C','S'},{'A','D','E','E'}};
+//    vector<vector<char>> board = {{'A','B','C'},{'S','F','C'},{'A','D','E'}};
+//    string word = "ABCCED";
+//    string word = "ABCCFSAD";
+//    word = '\0';
 
+//    Solution s;
+//    cout << s.exist(board, word);
+
+*/
+
+class Solution {
+public:
+    int rows;
+    int cols;
+    int k_;
+    int count = 0;
+    bool vis[100][100] = {};
+
+    int movingCount(int m, int n, int k) {
+        rows = m;
+        cols = n;
+        k_ = k;
+
+        dfs(0, 0);
+        return count;
+    }
+
+    static int getsum(int num)
+    {
+        int sum = 0;
+        while (num > 0)
+        {
+            sum += num % 10;
+            num /= 10;
+        }
+        return sum;
+    }
+
+    bool dfs(int r, int c)
+    {
+        if (r < 0 || r >= rows || c < 0 || c >= cols || (getsum(r) + getsum(c) > k_) || vis[r][c])
+            return false;
+
+//        cout << "[" << r << "," << c << "]" << endl;
+
+        vis[r][c] = true;
+        count++;
+
+        dfs(r-1, c) + dfs(r+1, c) + dfs(r, c-1) + dfs(r, c+1);
+        return true;
+    }
+};
 
 int main() {
-    vector<vector<char>> board = {{'A','B','C','E'},{'S','F','C','S'},{'A','D','E','E'}};
-//    vector<vector<char>> board = {{'A','B','C'},{'S','F','C'},{'A','D','E'}};
-    string word = "ABCCED";
-//    string word = "ABF";
-
     Solution s;
-    cout << s.exist(board, word);
+    cout << s.movingCount(3,2,17) << endl;
+
 
     cout << "\nFinish" << endl;
     return 0;
