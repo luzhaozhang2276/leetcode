@@ -1,37 +1,55 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-/// 不必像书中那样重新顺序查找
 class Solution {
 public:
-    int minArray(vector<int>& numbers) {
-        int low = 0;
-        int high = numbers.size() - 1;
-        while (low < high) {
-            int pivot = low + (high - low) / 2;
-            if (numbers[pivot] < numbers[high]) {
-                high = pivot;
-            }
-            else if (numbers[pivot] > numbers[high]) {
-                low = pivot + 1;
-            }
-            else {
-                high -= 1;
+    bool exist(vector<vector<char>>& board, const string& word) {
+        //cout << board.size() << "*" << board[0].size() << " , " << word.size() << endl;
+        rows = board.size();
+        cols = board[0].size();
+        for (int row = 0; row < rows; ++row)
+        {
+            for (int col = 0; col < cols; ++col) {
+                if (dfs(board, word, row, col, 0))
+                    return true;
             }
         }
-        return numbers[low];
+
+        return false;
+    }
+
+private:
+    int rows;
+    int cols;
+    bool dfs(vector<vector<char>>& board, const string& word, int r, int c, int k)
+    {
+        if (r < 0 || r >= rows || c < 0 || c >= cols || board[r][c] != word[k])
+            return false;
+        if (k == word.size()-1)
+            return true;
+
+
+        board[r][c] = '\0';
+        bool res = dfs(board, word, r-1, c, k+1) || dfs(board, word, r+1, c, k+1)
+                || dfs(board, word, r, c-1, k+1) || dfs(board, word, r, c+1, k+1);
+
+        board[r][c] = word[k];
+
+//        if(res)
+//            cout << board[r][c] << endl;
+        return res;
     }
 };
 
 
 int main() {
-//    vector<int> nums{3,4,5,1,2};
-//    vector<int> nums{2,2,2,0,1};
-//    vector<int> nums{1,2,3,4,5};
-//    vector<int> nums{10,1,10,10,10};
-    vector<int> nums{10,10,10,1,10};
+    vector<vector<char>> board = {{'A','B','C','E'},{'S','F','C','S'},{'A','D','E','E'}};
+//    vector<vector<char>> board = {{'A','B','C'},{'S','F','C'},{'A','D','E'}};
+    string word = "ABCCED";
+//    string word = "ABF";
+
     Solution s;
-    cout << "min: " << s.minArray(nums) << endl;
+    cout << s.exist(board, word);
 
     cout << "\nFinish" << endl;
     return 0;
