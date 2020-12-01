@@ -1,16 +1,12 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-#if 1       // 动态规划问题
+#if 0       // 动态规划问题
 class Solution {
 public:
     int cuttingRope(int n) {
-        if (n < 2)
-            return 0;
-        if (n == 2)
-            return 1;
-        if (n == 3)
-            return 2;
+        if (n < 4)
+            return n-1;
 
         int* ans = new int[n+1];
         ans[0] = 0;
@@ -36,24 +32,27 @@ public:
 };
 
 #else   // 贪婪算法
+// 大数取余
+//    1. 循环取余
+//    2. 快速幂取余
 
 class Solution {
 public:
     int cuttingRope(int n) {
-        if (n < 2)
-            return 0;
-        if (n == 2)
-            return 1;
-        if (n == 3)
-            return 2;
+        if (n <= 3)
+            return n-1;
+        if (n == 4)
+            return 4;
 
-        int time3 = n/3;
-        if ((n - 3*time3) == 1)
-            time3--;
+        long res = 1;
+        while (n > 4)
+        {
+            res *= 3;
+            res %= 1000000007;
+            n -= 3;
+        }
 
-        int time2 = (n - 3*time3) / 2;
-
-        return int(pow(3,time3) * pow(2, time2));
+        return res * n % 1000000007;
     }
 };
 
@@ -61,7 +60,7 @@ public:
 
 int main() {
     Solution s;
-    cout << "max: " << s.cuttingRope(10) << endl;
+    cout << "max: " << s.cuttingRope(4) << endl;
 
 
     cout << "\nFinish" << endl;
