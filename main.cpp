@@ -1,58 +1,50 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-#if 0       // 动态规划问题
+#if 0
 class Solution {
 public:
-    int cuttingRope(int n) {
-        if (n < 4)
-            return n-1;
-
-        int* ans = new int[n+1];
-        ans[0] = 0;
-        ans[1] = 1;
-        ans[2] = 2;
-        ans[3] = 3;
-
-        int max;
-        for (int i = 4; i <= n; ++i)
+    int hammingWeight(uint32_t n) {
+        int count = 0;
+        for (int i = 0; i < 32; ++i)
         {
-            max = 0;
-            for (int j = 1; j <= i/2; ++j)
-            {
-                max = (ans[j]*ans[i-j] > max) ? ans[j]*ans[i-j] : max;
-                ans[i] = max;
-            }
+            if (n & 1)
+                count++;
+            n = n >> 1;
         }
-        max = ans[n];
-        delete[] ans;
-
-        return max;
+        return count;
     }
 };
 
-#else   // 贪婪算法
-// 大数取余
-//    1. 循环取余
-//    2. 快速幂取余
+#elif 0
 
 class Solution {
 public:
-    int cuttingRope(int n) {
-        if (n <= 3)
-            return n-1;
-        if (n == 4)
-            return 4;
-
-        long res = 1;
-        while (n > 4)
+    int hammingWeight(uint32_t n) {
+        int count = 0;
+        unsigned int flag = 1;
+        while (flag)
         {
-            res *= 3;
-            res %= 1000000007;
-            n -= 3;
+            if (n & flag)
+                count++;
+            flag = flag << 1;
         }
+        return count;
+    }
+};
 
-        return res * n % 1000000007;
+#elif 1
+
+class Solution {
+public:
+    int hammingWeight(uint32_t n) {
+        int count = 0;
+        while (n)
+        {
+            ++count;
+            n = (n-1) & n;
+        }
+        return count;
     }
 };
 
@@ -60,7 +52,8 @@ public:
 
 int main() {
     Solution s;
-    cout << "max: " << s.cuttingRope(4) << endl;
+    uint32_t t = 00000000000000000000000000001011;
+    cout << "counts: " << s.hammingWeight(t) << endl;
 
 
     cout << "\nFinish" << endl;
