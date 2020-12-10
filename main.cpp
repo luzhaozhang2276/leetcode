@@ -1,87 +1,73 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-
-// Definition for singly-linked list.
-struct ListNode {
-    int val;
-    ListNode *next;
-    ListNode(int x) : val(x), next(NULL) {}
-};
-
+#if 0
+/// 递归:超出时间限制
 class Solution {
 public:
-    ListNode* deleteNode(ListNode* head, int val) {
-        if (head == nullptr)
-            return nullptr;
+    bool isMatch(string s, string p) {
+        // if (s.empty() || p.empty())
+            // return false;
+        return matchRecursion(s, p);
+    }
 
-        if (head->val == val)
-            return head->next;
+    bool matchRecursion(string s, string p)
+    {
+        /// 终止条件
+        if (s.empty() && p.empty())
+            return true;
+        if (!s.empty() && p.empty())
+            return false;
 
-        /// 双指针
-        /*
-        ListNode *pre = head;
-        ListNode *cur = head->next;
-        while (cur != nullptr && cur->val != val)
+        if (p[1] == '*')
         {
-            pre = cur;
-            cur = cur->next;
+            if (s[0] == p[0] ||(p[0] == '.' && !s.empty()))
+                return matchRecursion(s.substr(1), p.substr(2)) ||
+                       matchRecursion(s.substr(1), p.substr(0)) ||
+                       matchRecursion(s.substr(0), p.substr(2));
+            else
+                return matchRecursion(s.substr(0), p.substr(2));
         }
-        if (cur != nullptr)
-            pre->next = cur->next;
-        */
 
-        /// 单指针
-        /*
-        ListNode *ptr = head;
-        while (ptr->next != nullptr)
-        {
-            if (ptr->next->val == val)
-            {
-                ListNode *pNext = ptr->next;
-                ptr->next = pNext->next;
-                delete pNext;
-                return head;
-            }
-            ptr = ptr->next;
-        }
-        */
+        if (s[0] == p[0] ||(p[0] == '.' && !s.empty()))
+            return matchRecursion(s.substr(1), p.substr(1));
 
-        /// 递归
-        head->next = deleteNode(head->next, val);
-
-        return head;
+        return false;
     }
 };
 
+#elif 1
+/// 动态规划
+class Solution {
+public:
+    bool isMatch(string s, string p) {
+        int m = s.size() + 1, n = p.size() + 1;
+        vector<vector<bool>> dp(m, vector<bool>(n, false));
+        /// 初始化
+        dp[0][0] = true;    // 字符串与模板均为空,匹配成功
+        for(int j = 2; j < n; j += 2)   // 字符串为空,模板非空,且偶数位为*
+            dp[0][j] = dp[0][j - 2] && p[j - 1] == '*';
 
+        /// DP计算
+        for(int i = 1; i < m; i++) {
+            for(int j = 1; j < n; j++) {
+                dp[i][j] = p[j - 1] == '*' ?
+                           dp[i][j - 1] || dp[i][j - 2] || dp[i - 1][j] && (s[i - 1] == p[j - 2] || p[j - 2] == '.'):
+                           dp[i - 1][j - 1] && (p[j - 1] == '.' || s[i - 1] == p[j - 1]);
+            }
+        }
+        return dp[m - 1][n - 1];
+    }
+};
+#endif
 
 int main() {
-    vector<int> number = {4,5,1,9};
+    string s = "aab";
+    string p = "c*a*b*";
 
-    auto *list = new ListNode(0);
-    ListNode *ptr = list;
-    for (auto &p:number)
-    {
-        ptr->next = new ListNode(p);
-        ptr = ptr->next;
-    }
-
-    ptr = list->next;
-    delete list;
-
-
-
-    Solution s;
-    ListNode *res = s.deleteNode(ptr, 5);
-
-    cout << "print:" << endl;
-    while (res)
-    {
-        cout << res->val << endl;
-        res = res->next;
-    }
-
+    Solution solve;
+    string result = solve.isMatch(s, p) ? "true" : "false";
+    cout << "match: " << result << endl;
 
     cout << "\nFinish" << endl;
     return 0;
