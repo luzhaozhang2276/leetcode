@@ -2,72 +2,186 @@
 using namespace std;
 
 #if 0
-/// 递归:超出时间限制
+/// 常规解法
 class Solution {
 public:
-    bool isMatch(string s, string p) {
-        // if (s.empty() || p.empty())
-            // return false;
-        return matchRecursion(s, p);
+    string::iterator ite;
+    string::iterator end;
+
+    bool scanUnsignedInteger()
+    {
+        const auto before = ite;
+        while (ite != end && *ite >= '0' && *ite <= '9')
+            ++ite;
+
+        return ite > before;
     }
 
-    bool matchRecursion(string s, string p)
+    bool scanInteger()
     {
-        /// 终止条件
-        if (s.empty() && p.empty())
-            return true;
-        if (!s.empty() && p.empty())
+        if (*ite == '+' || *ite == '-')
+            ++ite;
+
+        return scanUnsignedInteger();
+    }
+
+
+    bool isNumber(string s) {
+        s.erase(0, s.find_first_not_of(" "));   // s.find_first_not_of(" ") 查找第一个不是空格的位置
+        s.erase(s.find_last_not_of(" ")+1);       // s.find_last_not_of(" ") 查找最后一个不是空格的位置
+        if (s.empty())
             return false;
 
-        if (p[1] == '*')
+        ite = s.begin();
+        end = s.end();
+
+        if (ite >= end)
+            return false;
+
+        bool numeric = scanInteger();
+
+        if (*ite == '.')
         {
-            if (s[0] == p[0] ||(p[0] == '.' && !s.empty()))
-                return matchRecursion(s.substr(1), p.substr(2)) ||
-                       matchRecursion(s.substr(1), p.substr(0)) ||
-                       matchRecursion(s.substr(0), p.substr(2));
-            else
-                return matchRecursion(s.substr(0), p.substr(2));
+            ++ite;
+            numeric = scanUnsignedInteger() || numeric;
         }
 
-        if (s[0] == p[0] ||(p[0] == '.' && !s.empty()))
-            return matchRecursion(s.substr(1), p.substr(1));
+        if (*ite == 'e' || *ite == 'E')
+        {
+            ++ite;
+            numeric = numeric && scanInteger();
+        }
 
-        return false;
+        return numeric && ite == end;
     }
 };
 
 #elif 1
-/// 动态规划
+
+/// 确定有限状态自动机
 class Solution {
 public:
-    bool isMatch(string s, string p) {
-        int m = s.size() + 1, n = p.size() + 1;
-        vector<vector<bool>> dp(m, vector<bool>(n, false));
-        /// 初始化
-        dp[0][0] = true;    // 字符串与模板均为空,匹配成功
-        for(int j = 2; j < n; j += 2)   // 字符串为空,模板非空,且偶数位为*
-            dp[0][j] = dp[0][j - 2] && p[j - 1] == '*';
+    enum State {
+        STATE_INITIAL,
+        STATE_INT_SIGN,
+        STATE_INTEGER,
+        STATE_POINT,
+        STATE_POINT_WITHOUT_INT,
+        STATE_FRACTION,
+        STATE_EXP,
+        STATE_EXP_SIGN,
+        STATE_EXP_NUMBER,
+        STATE_END,
+    };
 
-        /// DP计算
-        for(int i = 1; i < m; i++) {
-            for(int j = 1; j < n; j++) {
-                dp[i][j] = p[j - 1] == '*' ?
-                           dp[i][j - 1] || dp[i][j - 2] || dp[i - 1][j] && (s[i - 1] == p[j - 2] || p[j - 2] == '.'):
-                           dp[i - 1][j - 1] && (p[j - 1] == '.' || s[i - 1] == p[j - 1]);
+    enum CharType {
+        CHAR_NUMBER,
+        CHAR_EXP,
+        CHAR_POINT,
+        CHAR_SIGN,
+        CHAR_SPACE,
+        CHAR_ILLEGAL,
+    };
+
+    CharType toCharType(char ch) {
+        if (ch >= '0' && ch <= '9') {
+            return CHAR_NUMBER;
+        } else if (ch == 'e' || ch == 'E') {
+            return CHAR_EXP;
+        } else if (ch == '.') {
+            return CHAR_POINT;
+        } else if (ch == '+' || ch == '-') {
+            return CHAR_SIGN;
+        } else if (ch == ' ') {
+            return CHAR_SPACE;
+        } else {
+            return CHAR_ILLEGAL;
+        }
+    }
+
+    bool isNumber(string s) {
+        unordered_map<State, unordered_map<CharType, State>> transfer{
+            {
+                STATE_INITIAL, {
+                    {CHAR_SPACE, STATE_INITIAL},
+                    {CHAR_NUMBER, STATE_INTEGER},
+                    {CHAR_POINT, STATE_POINT_WITHOUT_INT},
+                    {CHAR_SIGN, STATE_INT_SIGN},
+                }
+            }, {
+                STATE_INT_SIGN, {
+                    {CHAR_NUMBER, STATE_INTEGER},
+                    {CHAR_POINT, STATE_POINT_WITHOUT_INT},
+                }
+            }, {
+                STATE_INTEGER, {
+                    {CHAR_NUMBER, STATE_INTEGER},
+                    {CHAR_EXP, STATE_EXP},
+                    {CHAR_POINT, STATE_POINT},
+                    {CHAR_SPACE, STATE_END},
+                }
+            }, {
+                STATE_POINT, {
+                    {CHAR_NUMBER, STATE_FRACTION},
+                    {CHAR_EXP, STATE_EXP},
+                    {CHAR_SPACE, STATE_END},
+                }
+            }, {
+                STATE_POINT_WITHOUT_INT, {
+                    {CHAR_NUMBER, STATE_FRACTION},
+                }
+            }, {
+                STATE_FRACTION,
+                {
+                    {CHAR_NUMBER, STATE_FRACTION},
+                    {CHAR_EXP, STATE_EXP},
+                    {CHAR_SPACE, STATE_END},
+                }
+            }, {
+                STATE_EXP,
+                {
+                    {CHAR_NUMBER, STATE_EXP_NUMBER},
+                    {CHAR_SIGN, STATE_EXP_SIGN},
+                }
+            }, {
+                STATE_EXP_SIGN, {
+                    {CHAR_NUMBER, STATE_EXP_NUMBER},
+                }
+            }, {
+                STATE_EXP_NUMBER, {
+                    {CHAR_NUMBER, STATE_EXP_NUMBER},
+                    {CHAR_SPACE, STATE_END},
+                }
+            }, {
+                STATE_END, {
+                    {CHAR_SPACE, STATE_END},
+                }
+            }
+        };
+
+        int len = s.length();
+        State st = STATE_INITIAL;
+
+        for (int i = 0; i < len; i++) {
+            CharType typ = toCharType(s[i]);
+            if (transfer[st].find(typ) == transfer[st].end()) {
+                return false;
+            } else {
+                st = transfer[st][typ];
             }
         }
-        return dp[m - 1][n - 1];
+        return st == STATE_INTEGER || st == STATE_POINT || st == STATE_FRACTION || st == STATE_EXP_NUMBER || st == STATE_END;
     }
 };
+
 #endif
 
 int main() {
-    string s = "aab";
-    string p = "c*a*b*";
+    string s = "1 ";
 
     Solution solve;
-    string result = solve.isMatch(s, p) ? "true" : "false";
-    cout << "match: " << result << endl;
+    string result = solve.isNumber(s) ? "true" : "false";
+    cout << "result: " << result << endl;
 
     cout << "\nFinish" << endl;
     return 0;
