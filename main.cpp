@@ -9,52 +9,74 @@ struct ListNode {
 };
 
 #if 0
-/// 快慢双指针
+/// 双指针
 class Solution {
 public:
-    ListNode* findLoopEntrance(ListNode* head) {
-        if (head->next == nullptr)
-            return nullptr;
-        ListNode *slow = head;
-        ListNode *fast = head;
-
-        do {
-            slow = slow->next;
-            fast = fast->next->next;
-        } while (fast != nullptr && fast != slow);
-
-        if (fast == nullptr)
-            return nullptr;
-
-        fast = head;
-        while (fast != slow)
+    ListNode* reverseList(ListNode* head) {
+        ListNode* cur = head;
+        ListNode* pre = nullptr;
+//        ListNode* pNext;
+        while (cur != nullptr)
         {
-            slow = slow->next;
-            fast = fast->next;
+            ListNode* tmp = cur->next;
+            cur->next = pre;
+            pre = cur;
+            cur = tmp;
         }
 
-        return fast;
+        return pre;
+    }
+};
+
+#elif 0
+/// 递归
+class Solution {
+public:
+    ListNode* reverseList(ListNode* head) {
+        return recur(head, nullptr);
+    }
+
+private:
+    ListNode* recur(ListNode* cur, ListNode* pre) {
+        if (cur == nullptr)     // 终止条件
+            return pre;
+
+        // 递归调用
+        ListNode* res = recur(cur->next, cur);
+        cur->next = pre;
+        return res;
     }
 };
 
 #elif 1
-/// 哈希表
+/// 堆栈
 class Solution {
 public:
-    ListNode* findLoopEntrance(ListNode* head) {
-        unordered_set<ListNode*> st;
-        while (head)
+    ListNode* reverseList(ListNode* head) {
+        stack<ListNode*> s;
+        while (head != nullptr)
         {
-            if (st.find(head) == st.end())
-            {
-                st.insert(head);
-                head = head->next;
-            } else
-                return head;
+            s.push(head);
+            head = head->next;
         }
 
-        return nullptr;
+        if (s.empty())
+            return nullptr;
+
+        ListNode* res = s.top();
+        s.pop();
+        ListNode* tmp = res;
+        while (!s.empty())
+        {
+            tmp->next = s.top();
+            s.pop();
+            tmp = tmp->next;
+        }
+        tmp->next = nullptr;
+
+        return res;
     }
+
 };
 
 #endif
@@ -62,7 +84,6 @@ public:
 int main() {
     /// 数据生成 ptr
     vector<int> number = {1,2,3,4,5,6};
-    int numberLoop = 0;
 
     auto *list = new ListNode(0);
     ListNode *ptr = list;
@@ -72,26 +93,34 @@ int main() {
         ptr = ptr->next;
     }
 
-    if (numberLoop > 0)
-    {
-        ListNode *pLoop = list;
-        for (int i = 0; i < numberLoop; ++i)
-            pLoop = pLoop->next;
-
-        ptr->next = pLoop;
-    }
-
     ptr = list->next;
     delete list;
+
+    cout << "initial: ";
+    auto print = ptr;
+    while (print != nullptr)
+    {
+        cout << print->val << " ";
+        print = print->next;
+    }
+    cout << endl;
 
     /// 数据处理
     Solution solve;
 
-    auto p = solve.findLoopEntrance(ptr);
+    auto p = solve.reverseList(ptr);
     if (p != nullptr)
-        cout << "Entrance: " << p->val << endl;
+    {
+        cout << "reverse: ";
+        while (p != nullptr)
+        {
+            cout << p->val << " ";
+            p = p->next;
+        }
+
+    }
     else
-        cout << "No loop" << endl;
+        cout << "list empty" << endl;
 
     cout << "\nFinish" << endl;
     return 0;
