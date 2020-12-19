@@ -8,119 +8,93 @@ struct ListNode {
     ListNode(int x) : val(x), next(NULL) {}
 };
 
-#if 0
-/// 双指针
-class Solution {
-public:
-    ListNode* reverseList(ListNode* head) {
-        ListNode* cur = head;
-        ListNode* pre = nullptr;
-//        ListNode* pNext;
-        while (cur != nullptr)
-        {
-            ListNode* tmp = cur->next;
-            cur->next = pre;
-            pre = cur;
-            cur = tmp;
-        }
-
-        return pre;
-    }
-};
-
-#elif 0
+#if 1
 /// 递归
 class Solution {
 public:
-    ListNode* reverseList(ListNode* head) {
-        return recur(head, nullptr);
-    }
+    ListNode* mergeTwoLists(ListNode* l1, ListNode* l2) {
+        if (l1 == nullptr || l2 == nullptr)
+            return l2 == nullptr ? l1 : l2;
 
-private:
-    ListNode* recur(ListNode* cur, ListNode* pre) {
-        if (cur == nullptr)     // 终止条件
-            return pre;
-
-        // 递归调用
-        ListNode* res = recur(cur->next, cur);
-        cur->next = pre;
-        return res;
+        if (l1->val < l2->val) {
+            l1->next = mergeTwoLists(l1->next, l2);
+            return l1;
+        } else {
+            l2->next = mergeTwoLists(l1, l2->next);
+            return l2;
+        }
     }
 };
 
 #elif 1
-/// 堆栈
+/// 伪头结点
 class Solution {
 public:
-    ListNode* reverseList(ListNode* head) {
-        stack<ListNode*> s;
-        while (head != nullptr)
+    ListNode* mergeTwoLists(ListNode* l1, ListNode* l2) {
+        ListNode dummy(0);
+        ListNode* cur = &dummy;
+        while (l1 != nullptr && l2 != nullptr)
         {
-            s.push(head);
-            head = head->next;
+            if (l1->val < l2->val)
+            {
+                cur->next = l1;
+                l1 = l1->next;
+            } else
+            {
+                cur->next = l2;
+                l2 = l2->next;
+            }
+            cur = cur->next;
         }
-
-        if (s.empty())
-            return nullptr;
-
-        ListNode* res = s.top();
-        s.pop();
-        ListNode* tmp = res;
-        while (!s.empty())
-        {
-            tmp->next = s.top();
-            s.pop();
-            tmp = tmp->next;
-        }
-        tmp->next = nullptr;
-
-        return res;
+        cur->next = l1!= nullptr ? l1 : l2;
+        return dummy.next;
     }
-
 };
 
 #endif
 
-int main() {
-    /// 数据生成 ptr
-    vector<int> number = {1,2,3,4,5,6};
-
+/// 生成链表
+ListNode* createList(const vector<int> &number)
+{
     auto *list = new ListNode(0);
-    ListNode *ptr = list;
+    list->next = nullptr;
+    ListNode *res = list;
     for (auto &p:number)
     {
-        ptr->next = new ListNode(p);
-        ptr = ptr->next;
+        res->next = new ListNode(p);
+        res = res->next;
     }
 
-    ptr = list->next;
+    res = list->next;
     delete list;
 
-    cout << "initial: ";
-    auto print = ptr;
-    while (print != nullptr)
+    return res;
+}
+
+/// 可视化链表
+void printList(ListNode* ptr)
+{
+    while (ptr != nullptr)
     {
-        cout << print->val << " ";
-        print = print->next;
+        cout << ptr->val << " ";
+        ptr = ptr->next;
     }
     cout << endl;
+}
 
-    /// 数据处理
-    Solution solve;
+int main() {
+    /// 数据生成 ptr
+    vector<int> number1 = {1,3,5,6,7};
+    vector<int> number2 = {2,3,4,6,8};
 
-    auto p = solve.reverseList(ptr);
-    if (p != nullptr)
-    {
-        cout << "reverse: ";
-        while (p != nullptr)
-        {
-            cout << p->val << " ";
-            p = p->next;
-        }
+    ListNode *ptr1 = createList(number1);
+    ListNode *ptr2 = createList(number2);
 
-    }
-    else
-        cout << "list empty" << endl;
+    Solution slove;
+    ListNode* ptr = slove.mergeTwoLists(ptr1, ptr2);
+
+    cout << "compute: ";
+    printList(ptr);
 
     cout << "\nFinish" << endl;
     return 0;
