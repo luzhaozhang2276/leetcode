@@ -2,99 +2,98 @@
 using namespace std;
 
 
-struct ListNode {
+
+struct TreeNode {
     int val;
-    ListNode *next;
-    ListNode(int x) : val(x), next(NULL) {}
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
 };
 
-#if 1
-/// 递归
 class Solution {
 public:
-    ListNode* mergeTwoLists(ListNode* l1, ListNode* l2) {
-        if (l1 == nullptr || l2 == nullptr)
-            return l2 == nullptr ? l1 : l2;
+    bool isSubStructure(TreeNode* A, TreeNode* B) {
 
-        if (l1->val < l2->val) {
-            l1->next = mergeTwoLists(l1->next, l2);
-            return l1;
-        } else {
-            l2->next = mergeTwoLists(l1, l2->next);
-            return l2;
-        }
-    }
-};
+        /// 常规写法
+        /*
+        bool result = false;
 
-#elif 1
-/// 伪头结点
-class Solution {
-public:
-    ListNode* mergeTwoLists(ListNode* l1, ListNode* l2) {
-        ListNode dummy(0);
-        ListNode* cur = &dummy;
-        while (l1 != nullptr && l2 != nullptr)
+        if (A != nullptr && B != nullptr)
         {
-            if (l1->val < l2->val)
-            {
-                cur->next = l1;
-                l1 = l1->next;
-            } else
-            {
-                cur->next = l2;
-                l2 = l2->next;
-            }
-            cur = cur->next;
+            if (A->val == B->val)
+                result = recursion(A, B);
+            if (!result)
+                result = isSubStructure(A->left, B);
+            if (!result)
+                result = isSubStructure(A->right, B);
         }
-        cur->next = l1!= nullptr ? l1 : l2;
-        return dummy.next;
+        return result;
+         */
+
+        /// 简略写法
+        return (A != nullptr && B != nullptr) &&
+               (recursion(A, B) || isSubStructure(A->left, B) || isSubStructure(A->right, B));
+    }
+
+    bool recursion(TreeNode* A, TreeNode* B)
+    {
+        if (B == nullptr)
+            return true;
+
+        if (A == nullptr || A->val != B->val)
+            return false;
+
+        return recursion(A->left, B->left) && recursion(A->right, B->right);
     }
 };
 
-#endif
-
-/// 生成链表
-ListNode* createList(const vector<int> &number)
+/// 生成二叉树: 使用队列(先进先出)
+TreeNode* createTree(vector<int> &number)
 {
-    auto *list = new ListNode(0);
-    list->next = nullptr;
-    ListNode *res = list;
-    for (auto &p:number)
+    if (number.empty())
+        return nullptr;
+
+    auto ptr = number.begin();
+
+    TreeNode* root = new TreeNode(*ptr);
+    queue<TreeNode*> nodeQueue;
+    nodeQueue.push(root);
+    while (ptr != number.end())
     {
-        res->next = new ListNode(p);
-        res = res->next;
+        TreeNode* node = nodeQueue.front();
+        nodeQueue.pop();
+
+        ptr++;
+        if(ptr != number.end()) {
+            node->left = new TreeNode(*ptr);
+            nodeQueue.push(node->left);
+        }
+
+        if(ptr == number.end())
+            break;
+
+        ptr++;
+        if(ptr != number.end())
+        {
+            node->right = new TreeNode(*ptr);
+            nodeQueue.push(node->right);
+        }
     }
 
-    res = list->next;
-    delete list;
-
-    return res;
-}
-
-/// 可视化链表
-void printList(ListNode* ptr)
-{
-    while (ptr != nullptr)
-    {
-        cout << ptr->val << " ";
-        ptr = ptr->next;
-    }
-    cout << endl;
+    return root;
 }
 
 int main() {
     /// 数据生成 ptr
-    vector<int> number1 = {1,3,5,6,7};
-    vector<int> number2 = {2,3,4,6,8};
+    vector<int> A = {3,4,5,1,2};
+    vector<int> B = {4,1};
 
-    ListNode *ptr1 = createList(number1);
-    ListNode *ptr2 = createList(number2);
+    TreeNode* treeA = createTree(A);
+    TreeNode* treeB = createTree(B);
 
-    Solution slove;
-    ListNode* ptr = slove.mergeTwoLists(ptr1, ptr2);
-
-    cout << "compute: ";
-    printList(ptr);
+    Solution solve;
+    string result = solve.isSubStructure(treeA, treeB) ? "True" : "False";
+    cout << "result: " << result << endl;
 
     cout << "\nFinish" << endl;
     return 0;
