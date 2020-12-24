@@ -10,42 +10,83 @@ struct TreeNode {
     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
 };
 
+#if 0
+/// 递归
 class Solution {
 public:
-    bool isSubStructure(TreeNode* A, TreeNode* B) {
+    TreeNode* mirrorTree(TreeNode* root) {
+        // if (root == nullptr || (root->left == nullptr && root->right == nullptr))
+        if (root == nullptr)
+            return root;
 
-        /// 常规写法
-        /*
-        bool result = false;
+        TreeNode* ptmp = root->left;
+        root->left = root->right;
+        root->right = ptmp;
 
-        if (A != nullptr && B != nullptr)
-        {
-            if (A->val == B->val)
-                result = recursion(A, B);
-            if (!result)
-                result = isSubStructure(A->left, B);
-            if (!result)
-                result = isSubStructure(A->right, B);
-        }
-        return result;
-         */
+        if (root->left != nullptr)
+            mirrorTree(root->left);
 
-        /// 简略写法
-        return (A != nullptr && B != nullptr) &&
-               (recursion(A, B) || isSubStructure(A->left, B) || isSubStructure(A->right, B));
-    }
+        if (root->right != nullptr)
+            mirrorTree(root->right);
 
-    bool recursion(TreeNode* A, TreeNode* B)
-    {
-        if (B == nullptr)
-            return true;
-
-        if (A == nullptr || A->val != B->val)
-            return false;
-
-        return recursion(A->left, B->left) && recursion(A->right, B->right);
+        return root;
     }
 };
+
+#elif 0
+/// 辅助栈
+class Solution {
+public:
+    TreeNode* mirrorTree(TreeNode* root) {
+        if (root == nullptr)
+            return root;
+        stack<TreeNode*> stack;
+        stack.push(root);
+        while (!stack.empty())
+        {
+            TreeNode* node = stack.top();
+            stack.pop();
+            if (node->left != nullptr)
+                stack.push(node->left);
+            if (node->right != nullptr)
+                stack.push(node->right);
+
+            TreeNode* ptmp = node->left;
+            node->left = node->right;
+            node->right = ptmp;
+        }
+
+        return root;
+    }
+};
+
+#elif 1
+/// 辅助队列
+class Solution {
+public:
+    TreeNode* mirrorTree(TreeNode* root) {
+        if (root == nullptr)
+            return root;
+        queue<TreeNode*> nodeQueue;
+        nodeQueue.push(root);
+        while (!nodeQueue.empty())
+        {
+            TreeNode* node = nodeQueue.front();
+            nodeQueue.pop();
+            if (node->left != nullptr)
+                nodeQueue.push(node->left);
+            if (node->right != nullptr)
+                nodeQueue.push(node->right);
+
+            TreeNode* ptmp = node->left;
+            node->left = node->right;
+            node->right = ptmp;
+        }
+
+        return root;
+    }
+};
+#endif
 
 /// 生成二叉树: 使用队列(先进先出)
 TreeNode* createTree(vector<int> &number)
@@ -64,7 +105,7 @@ TreeNode* createTree(vector<int> &number)
         nodeQueue.pop();
 
         ptr++;
-        if(ptr != number.end()) {
+        if(ptr != number.end() && *ptr != '\0') {
             node->left = new TreeNode(*ptr);
             nodeQueue.push(node->left);
         }
@@ -73,7 +114,7 @@ TreeNode* createTree(vector<int> &number)
             break;
 
         ptr++;
-        if(ptr != number.end())
+        if(ptr != number.end() && *ptr != '\0')
         {
             node->right = new TreeNode(*ptr);
             nodeQueue.push(node->right);
@@ -85,15 +126,13 @@ TreeNode* createTree(vector<int> &number)
 
 int main() {
     /// 数据生成 ptr
-    vector<int> A = {3,4,5,1,2};
-    vector<int> B = {4,1};
-
+    vector<int> A = {4,2,7,1,3,6,9};
+//    vector<int> A = {4,'\0',1,2,3};
     TreeNode* treeA = createTree(A);
-    TreeNode* treeB = createTree(B);
 
     Solution solve;
-    string result = solve.isSubStructure(treeA, treeB) ? "True" : "False";
-    cout << "result: " << result << endl;
+    solve.mirrorTree(treeA);
+
 
     cout << "\nFinish" << endl;
     return 0;
