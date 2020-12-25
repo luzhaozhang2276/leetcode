@@ -10,80 +10,25 @@ struct TreeNode {
     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
 };
 
-#if 0
-/// 递归
+#if 1
 class Solution {
 public:
-    TreeNode* mirrorTree(TreeNode* root) {
-        // if (root == nullptr || (root->left == nullptr && root->right == nullptr))
-        if (root == nullptr)
-            return root;
-
-        TreeNode* ptmp = root->left;
-        root->left = root->right;
-        root->right = ptmp;
-
-        if (root->left != nullptr)
-            mirrorTree(root->left);
-
-        if (root->right != nullptr)
-            mirrorTree(root->right);
-
-        return root;
+    bool isSymmetric(TreeNode* root) {
+        return recurtion(root, root);
     }
-};
 
-#elif 0
-/// 辅助栈
-class Solution {
-public:
-    TreeNode* mirrorTree(TreeNode* root) {
-        if (root == nullptr)
-            return root;
-        stack<TreeNode*> stack;
-        stack.push(root);
-        while (!stack.empty())
-        {
-            TreeNode* node = stack.top();
-            stack.pop();
-            if (node->left != nullptr)
-                stack.push(node->left);
-            if (node->right != nullptr)
-                stack.push(node->right);
+    bool recurtion(TreeNode* pRoot1, TreeNode* pRoot2)
+    {
+        if (pRoot1 == nullptr && pRoot2 == nullptr)
+            return true;
 
-            TreeNode* ptmp = node->left;
-            node->left = node->right;
-            node->right = ptmp;
-        }
+        if (pRoot1 == nullptr || pRoot2 == nullptr)
+            return false;
 
-        return root;
-    }
-};
+        if (pRoot1->val != pRoot2->val)
+            return false;
 
-#elif 1
-/// 辅助队列
-class Solution {
-public:
-    TreeNode* mirrorTree(TreeNode* root) {
-        if (root == nullptr)
-            return root;
-        queue<TreeNode*> nodeQueue;
-        nodeQueue.push(root);
-        while (!nodeQueue.empty())
-        {
-            TreeNode* node = nodeQueue.front();
-            nodeQueue.pop();
-            if (node->left != nullptr)
-                nodeQueue.push(node->left);
-            if (node->right != nullptr)
-                nodeQueue.push(node->right);
-
-            TreeNode* ptmp = node->left;
-            node->left = node->right;
-            node->right = ptmp;
-        }
-
-        return root;
+        return recurtion(pRoot1->left, pRoot2->right) && recurtion(pRoot1->right, pRoot2->left);
     }
 };
 #endif
@@ -126,13 +71,12 @@ TreeNode* createTree(vector<int> &number)
 
 int main() {
     /// 数据生成 ptr
-    vector<int> A = {4,2,7,1,3,6,9};
-//    vector<int> A = {4,'\0',1,2,3};
+    vector<int> A = {1,2,2,3,4,4,3};
     TreeNode* treeA = createTree(A);
 
     Solution solve;
-    solve.mirrorTree(treeA);
-
+    string result = solve.isSymmetric(treeA) ? "True" : "False";
+    cout << "result: " << result << endl;
 
     cout << "\nFinish" << endl;
     return 0;
