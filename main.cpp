@@ -1,97 +1,55 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-#if 0
-class Solution {
+class MinStack {
 public:
-    vector<int> spiralOrder(vector<vector<int>>& matrix) {
-        if (matrix.empty() || matrix[0].empty())
-            return res;
+    /** initialize your data structure here. */
+    MinStack() {
 
-        int start = 0;
-        while (matrix.size() > 2*start && matrix[0].size() > 2*start)
-        {
-            int endX = matrix[0].size() - 1 - start;
-            int endY = matrix.size() -1 -start;
+    }
 
-            // 左右
-            for (int i = start; i <= endX; ++i)
-                res.push_back(matrix[start][i]);
-            // 上下
-            if (start < endY) {
-                for (int i = start + 1; i <= endY; ++i)
-                    res.push_back(matrix[i][endX]);
-            }
-            // 右左
-            if (start < endX && start < endY){
-                for (int i = endX-1; i >= start; --i)
-                    res.push_back(matrix[endY][i]);
-            }
-            //下上
-            if (start < endX && start < endY - 1) {
-                for (int i = endY - 1; i >= start + 1; --i)
-                    res.push_back(matrix[i][start]);
-            }
+    void push(int x) {
+        m_data.push(x);
+        if (m_min.empty() || x <= m_min.top())  // 此处改为<=,能够省略相同最小值的入栈,节省空间
+            m_min.push(x);
+//        else
+//            m_min.push(m_min.top());
 
-            ++start;
-        }
+    }
 
-        return res;
+    void pop() {
+        if (m_data.empty() || m_min.empty())
+            return;
+        if (m_data.top() == m_min.top())    // 相等才出栈
+            m_min.pop();
+
+        m_data.pop();
+    }
+
+    int top() {
+        return m_data.top();
+    }
+
+    int min() {
+        return m_min.top();
     }
 
 private:
-    vector<int> res;
+    stack<int> m_data;      // 数据栈
+    stack<int> m_min;       // 辅助栈
+
 };
-
-#elif 1
-class Solution {
-public:
-    vector<int> spiralOrder(vector<vector<int>>& matrix) {
-        if (matrix.empty() || matrix[0].empty())
-            return res;
-
-        // 左右上下四个边界: l r t b
-        int l = 0, r = matrix[0].size() - 1, t = 0, b = matrix.size() - 1;
-        while (true)
-        {
-            // left to right
-            for (int i = l; i <= r; ++i)
-                res.push_back(matrix[t][i]);
-            if (++t > b)
-                break;
-            // top to bottom
-            for (int i = t; i <= b; ++i)
-                res.push_back(matrix[i][r]);
-            if (l > --r)
-                break;
-            // right to left
-            for (int i = r; i >= l; --i)
-                res.push_back(matrix[b][i]);
-            if (t > --b)
-                break;
-            // bottom to top
-            for (int i = b; i >= t; --i)
-                res.push_back(matrix[i][l]);
-            if (++l > r)
-                break;
-        }
-
-        return res;
-    }
-
-private:
-    vector<int> res;
-};
-#endif
 
 int main() {
-    /// 数据生成 ptr
-    vector<vector<int> > matrix = {{1,2,3},{4,5,6},{7,8,9}};
 
-    Solution solve;
-
-    for (auto p:solve.spiralOrder(matrix))
-        cout << p << " ";
+    MinStack* minStack = new MinStack();
+    minStack->push(-2);
+    minStack->push(0);
+    minStack->push(-1);
+    cout << minStack->min() << endl;     // -3.
+    cout << minStack->top() << endl;     // 0.
+    minStack->pop();
+    cout << minStack->min() << endl;     // -1.
 
     cout << "\nFinish" << endl;
     return 0;
