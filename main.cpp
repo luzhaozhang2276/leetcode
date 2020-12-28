@@ -1,56 +1,67 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-class MinStack {
+#if 1
+// 精简版
+class Solution {
 public:
-    /** initialize your data structure here. */
-    MinStack() {
+    bool validateStackSequences(vector<int>& pushed, vector<int>& popped) {
+        stack<int> stackData;
+        auto ppop = popped.begin();
+        for (auto p:pushed)
+        {
+            stackData.push(p);
+            while (!stackData.empty() && stackData.top() == *ppop) {
+                stackData.pop();
+                ppop++;
+            }
+        }
 
+        return stackData.empty();
     }
-
-    void push(int x) {
-        m_data.push(x);
-        if (m_min.empty() || x <= m_min.top())  // 此处改为<=,能够省略相同最小值的入栈,节省空间
-            m_min.push(x);
-//        else
-//            m_min.push(m_min.top());
-
-    }
-
-    void pop() {
-        if (m_data.empty() || m_min.empty())
-            return;
-        if (m_data.top() == m_min.top())    // 相等才出栈
-            m_min.pop();
-
-        m_data.pop();
-    }
-
-    int top() {
-        return m_data.top();
-    }
-
-    int min() {
-        return m_min.top();
-    }
-
-private:
-    stack<int> m_data;      // 数据栈
-    stack<int> m_min;       // 辅助栈
-
 };
 
+#elif 1
+// 常规解法
+class Solution {
+public:
+    bool validateStackSequences(vector<int>& pushed, vector<int>& popped) {
+        if (pushed.empty() && popped.empty())
+            return true;
+
+        stack<int> stackData;
+        auto pPush = pushed.begin();
+        auto pPop  = popped.begin();
+
+        while (pPop != popped.end())
+        {
+            while (stackData.empty() || stackData.top() != *pPop)
+            {
+                if (pPush == pushed.end())
+                    break;
+                stackData.push(*(pPush++));
+            }
+
+            if (stackData.top() != *pPop)
+                break;
+
+            stackData.pop();
+            pPop++;
+        }
+
+        return stackData.empty() && pPop == popped.end();
+    }
+};
+#endif
+
 int main() {
+    vector<int> pushed = {1,2,3,4,5};
+    vector<int> popped = {4,5,3,2,1};
 
-    MinStack* minStack = new MinStack();
-    minStack->push(-2);
-    minStack->push(0);
-    minStack->push(-1);
-    cout << minStack->min() << endl;     // -3.
-    cout << minStack->top() << endl;     // 0.
-    minStack->pop();
-    cout << minStack->min() << endl;     // -1.
+    Solution solve;
+    string result = solve.validateStackSequences(pushed, popped) ? "True" : "False";
+    cout << "result: " << result << endl;
 
-    cout << "\nFinish" << endl;
+    cout << "\nFinish";
     return 0;
 }
