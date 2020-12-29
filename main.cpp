@@ -1,66 +1,82 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-#if 1
-// 精简版
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
 class Solution {
 public:
-    bool validateStackSequences(vector<int>& pushed, vector<int>& popped) {
-        stack<int> stackData;
-        auto ppop = popped.begin();
-        for (auto p:pushed)
-        {
-            stackData.push(p);
-            while (!stackData.empty() && stackData.top() == *ppop) {
-                stackData.pop();
-                ppop++;
-            }
-        }
+    vector<int> levelOrder(TreeNode* root) {
+        vector<int> res;
+        if (!root)
+            return res;
 
-        return stackData.empty();
+        queue<TreeNode*> queTree;
+        queTree.push(root);
+        while (!queTree.empty())
+        {
+            TreeNode* pNode = queTree.front();
+            queTree.pop();
+            res.push_back(pNode->val);
+
+            if (pNode->left)
+                queTree.push(pNode->left);
+            if (pNode->right)
+                queTree.push(pNode->right);
+        }
+        return res;
     }
 };
 
-#elif 1
-// 常规解法
-class Solution {
-public:
-    bool validateStackSequences(vector<int>& pushed, vector<int>& popped) {
-        if (pushed.empty() && popped.empty())
-            return true;
+/// 生成二叉树: 使用队列(先进先出)
+TreeNode* createTree(vector<int> &number)
+{
+    if (number.empty())
+        return nullptr;
 
-        stack<int> stackData;
-        auto pPush = pushed.begin();
-        auto pPop  = popped.begin();
+    auto ptr = number.begin();
 
-        while (pPop != popped.end())
-        {
-            while (stackData.empty() || stackData.top() != *pPop)
-            {
-                if (pPush == pushed.end())
-                    break;
-                stackData.push(*(pPush++));
-            }
+    TreeNode* root = new TreeNode(*ptr);
+    queue<TreeNode*> nodeQueue;
+    nodeQueue.push(root);
+    while (ptr != number.end())
+    {
+        TreeNode* node = nodeQueue.front();
+        nodeQueue.pop();
 
-            if (stackData.top() != *pPop)
-                break;
-
-            stackData.pop();
-            pPop++;
+        ptr++;
+        if(ptr != number.end() && *ptr != '\0') {
+            node->left = new TreeNode(*ptr);
+            nodeQueue.push(node->left);
         }
 
-        return stackData.empty() && pPop == popped.end();
+        if(ptr == number.end())
+            break;
+
+        ptr++;
+        if(ptr != number.end() && *ptr != '\0')
+        {
+            node->right = new TreeNode(*ptr);
+            nodeQueue.push(node->right);
+        }
     }
-};
-#endif
+
+    return root;
+}
 
 int main() {
-    vector<int> pushed = {1,2,3,4,5};
-    vector<int> popped = {4,5,3,2,1};
+    /// 数据生成 ptr
+//    vector<int> num = {3,9,20,NULL,NULL,15,7};
+    vector<int> num = {};
+    TreeNode* tree = createTree(num);
 
     Solution solve;
-    string result = solve.validateStackSequences(pushed, popped) ? "True" : "False";
-    cout << "result: " << result << endl;
+    for (auto p:solve.levelOrder(tree))
+        cout << p << " ";
 
     cout << "\nFinish";
     return 0;
