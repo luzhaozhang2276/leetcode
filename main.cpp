@@ -10,23 +10,30 @@ struct TreeNode {
 
 class Solution {
 public:
-    vector<int> levelOrder(TreeNode* root) {
-        vector<int> res;
+    vector<vector<int>> levelOrder(TreeNode* root) {
+        vector<vector<int> > res;
         if (!root)
             return res;
 
         queue<TreeNode*> queTree;
         queTree.push(root);
+
+
         while (!queTree.empty())
         {
-            TreeNode* pNode = queTree.front();
-            queTree.pop();
-            res.push_back(pNode->val);
+            vector<int> curr;
+            for (int i = queTree.size(); i > 0; --i)
+            {
+                TreeNode* pNode = queTree.front();
+                queTree.pop();
+                curr.push_back(pNode->val);
+                if (pNode->left)
+                    queTree.push(pNode->left);
+                if (pNode->right)
+                    queTree.push(pNode->right);
+            }
 
-            if (pNode->left)
-                queTree.push(pNode->left);
-            if (pNode->right)
-                queTree.push(pNode->right);
+            res.push_back(curr);
         }
         return res;
     }
@@ -70,13 +77,16 @@ TreeNode* createTree(vector<int> &number)
 
 int main() {
     /// 数据生成 ptr
-//    vector<int> num = {3,9,20,NULL,NULL,15,7};
-    vector<int> num = {};
+    vector<int> num = {3,9,20,NULL,NULL,15,7};
     TreeNode* tree = createTree(num);
 
     Solution solve;
-    for (auto p:solve.levelOrder(tree))
-        cout << p << " ";
+    for (auto p:solve.levelOrder(tree)) {
+        for (auto q:p)
+            cout << q << " ";
+        cout << endl;
+    }
+
 
     cout << "\nFinish";
     return 0;
