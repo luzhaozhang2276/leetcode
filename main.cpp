@@ -15,24 +15,34 @@ public:
         if (!root)
             return res;
 
-        queue<TreeNode*> queTree;
-        queTree.push(root);
-
+        deque<TreeNode*> queTree;
+        queTree.push_back(root);
 
         while (!queTree.empty())
         {
             vector<int> curr;
+            TreeNode* pNode;
             for (int i = queTree.size(); i > 0; --i)
             {
-                TreeNode* pNode = queTree.front();
-                queTree.pop();
-                curr.push_back(pNode->val);
-                if (pNode->left)
-                    queTree.push(pNode->left);
-                if (pNode->right)
-                    queTree.push(pNode->right);
+                if (! (res.size() & 1))     // 位运算判断奇偶
+                {
+                    pNode = queTree.front();
+                    queTree.pop_front();
+                    curr.push_back(pNode->val);
+                    if (pNode->left)
+                        queTree.push_back(pNode->left);
+                    if (pNode->right)
+                        queTree.push_back(pNode->right);
+                } else {
+                    pNode = queTree.back();
+                    queTree.pop_back();
+                    curr.push_back(pNode->val);
+                    if (pNode->right)
+                        queTree.push_front(pNode->right);
+                    if (pNode->left)
+                        queTree.push_front(pNode->left);
+                }
             }
-
             res.push_back(curr);
         }
         return res;
@@ -77,7 +87,7 @@ TreeNode* createTree(vector<int> &number)
 
 int main() {
     /// 数据生成 ptr
-    vector<int> num = {3,9,20,NULL,NULL,15,7};
+    vector<int> num = {1,2,3,4,NULL,NULL,5};
     TreeNode* tree = createTree(num);
 
     Solution solve;
@@ -86,7 +96,6 @@ int main() {
             cout << q << " ";
         cout << endl;
     }
-
 
     cout << "\nFinish";
     return 0;
