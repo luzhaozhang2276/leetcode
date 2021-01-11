@@ -1,101 +1,107 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
+#if 1
+/// 单调栈
 class Solution {
 public:
-    vector<vector<int>> levelOrder(TreeNode* root) {
-        vector<vector<int> > res;
-        if (!root)
-            return res;
+    bool verifyPostorder(vector<int>& postorder) {
+        stack<int> sta;
+        int root = static_cast<int>(1e10);
 
-        deque<TreeNode*> queTree;
-        queTree.push_back(root);
+        for (int i = postorder.size() - 1; i >= 0; --i) {
+            if (postorder[i] > root)
+                return false;
 
-        while (!queTree.empty())
-        {
-            vector<int> curr;
-            TreeNode* pNode;
-            for (int i = queTree.size(); i > 0; --i)
-            {
-                if (! (res.size() & 1))     // 位运算判断奇偶
-                {
-                    pNode = queTree.front();
-                    queTree.pop_front();
-                    curr.push_back(pNode->val);
-                    if (pNode->left)
-                        queTree.push_back(pNode->left);
-                    if (pNode->right)
-                        queTree.push_back(pNode->right);
-                } else {
-                    pNode = queTree.back();
-                    queTree.pop_back();
-                    curr.push_back(pNode->val);
-                    if (pNode->right)
-                        queTree.push_front(pNode->right);
-                    if (pNode->left)
-                        queTree.push_front(pNode->left);
-                }
+            while (!sta.empty() && (sta.top() > postorder[i])) {
+                root = sta.top();
+                sta.pop();
             }
-            res.push_back(curr);
+            sta.push(postorder[i]);
         }
-        return res;
+        return true;
+    }
+};
+#elif 1
+
+/// 递归分治
+class Solution {
+public:
+    bool verifyPostorder(vector<int>& postorder) {
+        return recur(postorder, 0, postorder.size()-1);
+    }
+
+    bool recur(vector<int>& postorder, int l, int r) {
+        // 递归终止条件
+        if (l >= r)
+            return true;
+
+        // 划分左右子树
+        int p = l;
+        while (postorder[p] < postorder[r])
+            p++;
+        int m = p;
+
+        // 判断子树是否为二叉搜索树
+        // (在划分时,已经能够保证左子树的正确性,此处只需要判断右子树)
+        while (postorder[p] > postorder[r])
+            p++;
+
+        // p == r : 直到最后一个(即根节点)才退出,说明根节点之前的区间(右子树)正确
+        // 递归判断左子树和右子树
+        return p == r && recur(postorder, l, m-1) && recur(postorder, m, r-1);
     }
 };
 
-/// 生成二叉树: 使用队列(先进先出)
-TreeNode* createTree(vector<int> &number)
-{
-    if (number.empty())
-        return nullptr;
+#elif 1
+/// 剑指offer版本
+class Solution {
+public:
+    bool verifyPostorder(vector<int>& postorder) {
+        if (postorder.empty())
+            return true;
 
-    auto ptr = number.begin();
+        int root = postorder.back();
 
-    TreeNode* root = new TreeNode(*ptr);
-    queue<TreeNode*> nodeQueue;
-    nodeQueue.push(root);
-    while (ptr != number.end())
-    {
-        TreeNode* node = nodeQueue.front();
-        nodeQueue.pop();
-
-        ptr++;
-        if(ptr != number.end() && *ptr != '\0') {
-            node->left = new TreeNode(*ptr);
-            nodeQueue.push(node->left);
-        }
-
-        if(ptr == number.end())
-            break;
-
-        ptr++;
-        if(ptr != number.end() && *ptr != '\0')
+        int i;
+        for (i = 0; i < postorder.size() - 1; ++i)
         {
-            node->right = new TreeNode(*ptr);
-            nodeQueue.push(node->right);
+            if (postorder[i] > root)
+                break;
         }
-    }
 
-    return root;
-}
+        for (int j = i; j < postorder.size() - 1; ++j)
+        {
+            if (postorder[j] < root)
+                return false;
+        }
+
+        bool left = true;
+        if (i > 0)
+        {
+            vector<int> lvec(postorder.begin(), postorder.begin()+i);
+            left = verifyPostorder(lvec);
+        }
+
+        bool right = true;
+        if (i < postorder.size() - 1)
+        {
+            vector<int> rvec(postorder.begin()+i, postorder.end() - 1);
+            right = verifyPostorder(rvec);
+        }
+
+        return (left && right);
+    }
+};
+
+#endif
 
 int main() {
-    /// 数据生成 ptr
-    vector<int> num = {1,2,3,4,NULL,NULL,5};
-    TreeNode* tree = createTree(num);
+    vector<int> num = {1,3,2,6,5};
 
     Solution solve;
-    for (auto p:solve.levelOrder(tree)) {
-        for (auto q:p)
-            cout << q << " ";
-        cout << endl;
-    }
+    string result = solve.verifyPostorder(num) ? "True" : "False";
+    cout << "result: " << result << endl;
 
     cout << "\nFinish";
     return 0;
