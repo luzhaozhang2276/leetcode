@@ -1,107 +1,104 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-#if 1
-/// 单调栈
-class Solution {
-public:
-    bool verifyPostorder(vector<int>& postorder) {
-        stack<int> sta;
-        int root = static_cast<int>(1e10);
-
-        for (int i = postorder.size() - 1; i >= 0; --i) {
-            if (postorder[i] > root)
-                return false;
-
-            while (!sta.empty() && (sta.top() > postorder[i])) {
-                root = sta.top();
-                sta.pop();
-            }
-            sta.push(postorder[i]);
-        }
-        return true;
-    }
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
 };
-#elif 1
 
-/// 递归分治
 class Solution {
 public:
-    bool verifyPostorder(vector<int>& postorder) {
-        return recur(postorder, 0, postorder.size()-1);
+    vector<vector<int>> pathSum(TreeNode* root, int sum) {
+        if (root == nullptr)
+            return res;
+
+        currSum = sum;
+        recur(root);
+
+        return res;
     }
 
-    bool recur(vector<int>& postorder, int l, int r) {
+    void recur(TreeNode* root) {
         // 递归终止条件
-        if (l >= r)
-            return true;
+        // 递归过程中,遇到满足条件的路径,则记录保存,运行结束后输出保存结果即可
+        if (root == nullptr)
+            return;
 
-        // 划分左右子树
-        int p = l;
-        while (postorder[p] < postorder[r])
-            p++;
-        int m = p;
+        currSum -= root->val;
+        curr.push_back(root->val);
 
-        // 判断子树是否为二叉搜索树
-        // (在划分时,已经能够保证左子树的正确性,此处只需要判断右子树)
-        while (postorder[p] > postorder[r])
-            p++;
+        // 叶子节点 && 路径和满足
+        if ((root->left == nullptr) && (root->right == nullptr) && currSum == 0)
+            res.push_back(curr);
 
-        // p == r : 直到最后一个(即根节点)才退出,说明根节点之前的区间(右子树)正确
-        // 递归判断左子树和右子树
-        return p == r && recur(postorder, l, m-1) && recur(postorder, m, r-1);
+        if (root->left != nullptr)
+            recur(root->left);
+        if (root->right != nullptr)
+            recur(root->right);
+
+        // 回退
+        currSum += curr.back();
+        curr.pop_back();
     }
+
+private:
+    vector<vector<int>> res;
+    vector<int> curr;
+    int currSum;
 };
 
-#elif 1
-/// 剑指offer版本
-class Solution {
-public:
-    bool verifyPostorder(vector<int>& postorder) {
-        if (postorder.empty())
-            return true;
+// 生成二叉树: 使用队列(先进先出)
+TreeNode* createTree(vector<int> &number)
+{
+    if (number.empty())
+        return nullptr;
 
-        int root = postorder.back();
+    auto ptr = number.begin();
 
-        int i;
-        for (i = 0; i < postorder.size() - 1; ++i)
-        {
-            if (postorder[i] > root)
-                break;
+    TreeNode* root = new TreeNode(*ptr);
+    queue<TreeNode*> nodeQueue;
+    nodeQueue.push(root);
+    while (ptr != number.end())
+    {
+        TreeNode* node = nodeQueue.front();
+        nodeQueue.pop();
+
+        ptr++;
+        if(ptr != number.end() && *ptr != '\0') {
+            node->left = new TreeNode(*ptr);
+            nodeQueue.push(node->left);
         }
 
-        for (int j = i; j < postorder.size() - 1; ++j)
-        {
-            if (postorder[j] < root)
-                return false;
-        }
+        if(ptr == number.end())
+            break;
 
-        bool left = true;
-        if (i > 0)
+        ptr++;
+        if(ptr != number.end() && *ptr != '\0')
         {
-            vector<int> lvec(postorder.begin(), postorder.begin()+i);
-            left = verifyPostorder(lvec);
+            node->right = new TreeNode(*ptr);
+            nodeQueue.push(node->right);
         }
-
-        bool right = true;
-        if (i < postorder.size() - 1)
-        {
-            vector<int> rvec(postorder.begin()+i, postorder.end() - 1);
-            right = verifyPostorder(rvec);
-        }
-
-        return (left && right);
     }
-};
 
-#endif
+    return root;
+}
 
 int main() {
-    vector<int> num = {1,3,2,6,5};
+    vector<int> num = {5,4,8,11,NULL,13,4,7,2,NULL,NULL,5,1};
+    TreeNode* tree = createTree(num);
 
     Solution solve;
-    string result = solve.verifyPostorder(num) ? "True" : "False";
-    cout << "result: " << result << endl;
+    vector<vector<int>> res = solve.pathSum(tree, 22);
+
+    for (const auto& p:res)
+    {
+        for (auto q:p)
+            cout << q << " ";
+        cout << endl;
+    }
+
 
     cout << "\nFinish";
     return 0;
