@@ -1,104 +1,129 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-struct TreeNode {
+class Node {
+public:
     int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+    Node* next;
+    Node* random;
+
+    Node(int _val) {
+        val = _val;
+        next = NULL;
+        random = NULL;
+    }
 };
 
+#if 1
+/// 哈希表法
 class Solution {
 public:
-    vector<vector<int>> pathSum(TreeNode* root, int sum) {
-        if (root == nullptr)
-            return res;
+    Node* copyRandomList(Node* head) {
+        if (head == nullptr)
+            return nullptr;
 
-        currSum = sum;
-        recur(root);
+        // 初始化
+        Node* cur = head;
+        unordered_map<Node*, Node*> map;
 
-        return res;
+        // 复制链表
+        while (cur != nullptr)
+        {
+            // first:原节点    second:键值(新节点)
+            map[cur] = new Node(cur->val);
+            cur = cur->next;
+        }
+        cur = head;
+
+        // 构建新链表的next和random指向
+        while (cur != nullptr)
+        {
+            map[cur]->next = map[cur->next];
+            map[cur]->random = map[cur->random];
+            cur = cur->next;
+        }
+
+        // 返回值
+        return map[head];
     }
-
-    void recur(TreeNode* root) {
-        // 递归终止条件
-        // 递归过程中,遇到满足条件的路径,则记录保存,运行结束后输出保存结果即可
-        if (root == nullptr)
-            return;
-
-        currSum -= root->val;
-        curr.push_back(root->val);
-
-        // 叶子节点 && 路径和满足
-        if ((root->left == nullptr) && (root->right == nullptr) && currSum == 0)
-            res.push_back(curr);
-
-        if (root->left != nullptr)
-            recur(root->left);
-        if (root->right != nullptr)
-            recur(root->right);
-
-        // 回退
-        currSum += curr.back();
-        curr.pop_back();
-    }
-
-private:
-    vector<vector<int>> res;
-    vector<int> curr;
-    int currSum;
 };
 
-// 生成二叉树: 使用队列(先进先出)
-TreeNode* createTree(vector<int> &number)
-{
-    if (number.empty())
-        return nullptr;
+#elif 1
+/// 拼接 && 拆分
+class Solution {
+public:
+    Node* copyRandomList(Node* head) {
+        if (head == nullptr)
+            return nullptr;
 
-    auto ptr = number.begin();
-
-    TreeNode* root = new TreeNode(*ptr);
-    queue<TreeNode*> nodeQueue;
-    nodeQueue.push(root);
-    while (ptr != number.end())
-    {
-        TreeNode* node = nodeQueue.front();
-        nodeQueue.pop();
-
-        ptr++;
-        if(ptr != number.end() && *ptr != '\0') {
-            node->left = new TreeNode(*ptr);
-            nodeQueue.push(node->left);
-        }
-
-        if(ptr == number.end())
-            break;
-
-        ptr++;
-        if(ptr != number.end() && *ptr != '\0')
+        Node* cur = head;
+        // clone
+        while (cur != nullptr)
         {
-            node->right = new TreeNode(*ptr);
-            nodeQueue.push(node->right);
+            Node* clone = new Node(cur->val);
+            clone->next = cur->next;
+            cur->next = clone;
+            cur = clone->next;
         }
-    }
 
-    return root;
-}
+        // link random
+        cur = head;
+        while (cur != nullptr)
+        {
+            if (cur->random != nullptr)
+                cur->next->random = cur->random->next;
+            cur = cur->next->next;
+        }
+
+        // split
+        cur = head->next;
+        Node *pre = head, *res = head->next;
+        while (cur->next != nullptr)
+        {
+            pre->next = cur->next;
+            cur->next = pre->next->next;
+            pre = pre->next;
+            cur = cur->next;
+        }
+
+        pre->next = nullptr;
+        return res;
+    }
+};
+#endif
+
 
 int main() {
-    vector<int> num = {5,4,8,11,NULL,13,4,7,2,NULL,NULL,5,1};
-    TreeNode* tree = createTree(num);
+    /// 数据生成
+    vector<int> values = {7,13,11,10,1};
+    vector<int> rands = {-1, 0, 4, 2, 0};
 
-    Solution solve;
-    vector<vector<int>> res = solve.pathSum(tree, 22);
-
-    for (const auto& p:res)
+    vector<Node*> vec;
+    for (auto p:values)
     {
-        for (auto q:p)
-            cout << q << " ";
-        cout << endl;
+        Node* node;
+        node = new Node(p);
+        vec.push_back(node);
+    }
+    vec.push_back(new Node(0));
+
+    for (int i = 0; i < vec.size()-1; ++i)
+    {
+        vec[i]->next = vec[i+1];
+        if (rands[i] != -1)
+            vec[i]->random = vec[rands[i]];
+        else
+            vec[i]->random = nullptr;
     }
 
+    vec.pop_back();
+    vec.back()->next = nullptr;
+
+    Node* head = vec[0];
+
+    /// 复制操作
+    Solution solve;
+    solve.copyRandomList(head);
 
     cout << "\nFinish";
     return 0;
