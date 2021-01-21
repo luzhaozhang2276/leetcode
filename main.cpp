@@ -1,85 +1,96 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-class Node {
-public:
+struct TreeNode {
     int val;
-    Node* left;
-    Node* right;
-
-    Node() {}
-
-    Node(int _val) {
-        val = _val;
-        left = NULL;
-        right = NULL;
-    }
-
-    Node(int _val, Node* _left, Node* _right) {
-        val = _val;
-        left = _left;
-        right = _right;
-    }
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
 };
 
-class Solution {
+class Codec {
 public:
-    Node* treeToDoublyList(Node* root) {
+
+    // Encodes a tree to a single string.
+    string serialize(TreeNode* root) {
         if (root == nullptr)
+            return "[]";
+
+        string res = "[";
+        queue<TreeNode*> que;
+        que.push(root);
+
+        while (!que.empty())
+        {
+            TreeNode* node = que.front();
+            que.pop();
+            if (node != nullptr)
+            {
+                res += std::to_string(node->val) + ',';
+                que.push(node->left);
+                que.push(node->right);
+            } else
+                res += "NULL,";
+        }
+
+        *(res.end()-1) = ']';
+        return res;
+    }
+
+    // Decodes your encoded data to tree.
+    TreeNode* deserialize(string data) {
+        if (data == "[]")
             return nullptr;
-        pre = nullptr;
 
-        recur(root);
-        head->left = pre;
-        pre->right = head;
+        vector<string> values;      // 存为string不会面临 int 的 NULL 判断问题,但是占用空间更大
+        istringstream iss(data.substr(1, data.size()-2));
+        string tmp;
+        while (getline(iss, tmp, ','))
+            values.push_back(tmp);
 
-        return head;
+        auto* root = new TreeNode(stoi(values[0]));
+        queue<TreeNode*> que;
+        que.push(root);
+        int i = 1;
+        while (!que.empty())
+        {
+            TreeNode* node = que.front();
+            que.pop();
+            if (values[i] != "NULL") {
+                node->left = new TreeNode(stoi(values[i]));
+                que.push(node->left);
+            }
+            i++;
+            if (values[i] != "NULL") {
+                node->right = new TreeNode(stoi(values[i]));
+                que.push(node->right);
+            }
+            i++;
+        }
+
+        return root;
     }
-
-    void recur(Node *cur)
-    {
-        // 递归终止条件
-        if (cur == nullptr)
-            return;
-
-        // 左子树
-        recur(cur->left);
-
-        // 根节点
-        if (pre != nullptr)
-            pre->right = cur;
-        else
-            head = cur;
-        cur->left = pre;
-        pre = cur;
-
-        // 右子树
-        recur(cur->right);
-    }
-
-private:
-    Node *pre, *head;
 };
 
 /// 生成二叉树: 使用队列(先进先出)
-Node* createTree(vector<int> &number)
+TreeNode* createTree(vector<int> &number)
 {
     if (number.empty())
         return nullptr;
 
     auto ptr = number.begin();
 
-    Node* root = new Node(*ptr);
-    queue<Node*> nodeQueue;
+    TreeNode* root = new TreeNode(*ptr);
+    queue<TreeNode*> nodeQueue;
     nodeQueue.push(root);
     while (ptr != number.end())
     {
-        Node* node = nodeQueue.front();
+        TreeNode* node = nodeQueue.front();
         nodeQueue.pop();
 
         ptr++;
-        if(ptr != number.end() && *ptr != '\0') {
-            node->left = new Node(*ptr);
+        if(ptr != number.end() && *ptr != -100) {
+            node->left = new TreeNode(*ptr);
             nodeQueue.push(node->left);
         }
 
@@ -87,9 +98,9 @@ Node* createTree(vector<int> &number)
             break;
 
         ptr++;
-        if(ptr != number.end() && *ptr != '\0')
+        if(ptr != number.end() && *ptr != -100)
         {
-            node->right = new Node(*ptr);
+            node->right = new TreeNode(*ptr);
             nodeQueue.push(node->right);
         }
     }
@@ -98,11 +109,13 @@ Node* createTree(vector<int> &number)
 }
 
 int main() {
-    vector<int> num = {4,2,5,1,3};
-    Node* tree = createTree(num);
+    // vector<int> num = {1,2,3,NULL,NULL,4,5};
+    vector<int> num = {-1,0,1};
+    TreeNode* tree = createTree(num);
 
-    Solution solve;
-    auto ptr = solve.treeToDoublyList(tree);
+    Codec solve;
+    cout << solve.serialize(tree) << endl;
+    TreeNode* root = solve.deserialize(solve.serialize(tree));
 
     cout << "\nFinish";
     return 0;
