@@ -1,64 +1,57 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-// set
-// unordered_map
-
-// string
-// char*
-// char[]
-
+#if 0
+// hashmap
 class Solution {
 public:
-    vector<string> res;
-    char* c;
-    vector<string> permutation(string s) {
-        c = const_cast<char *>(s.c_str());
-        recur(0);
-        return res;
-    }
-
-    void recur(int x)
-    {
-        if (c[x] == '\0') {
-            res.emplace_back(c);
-            return;
-        }
-
-        set<char> chars;
-        int i = x;
-        while (c[i] != '\0')
-        {
-            if (chars.find(c[i]) != chars.end())
-            {
-                i++;
-                continue;
+    int majorityElement(vector<int>& nums) {
+        map<int, int> Imap;
+        for (int i = 0; i < nums.size(); ++i) {
+            if (Imap.find(nums[i]) == Imap.end())
+                Imap.insert(pair<int, int>(nums[i], 1));
+            else {
+                int temp = Imap[nums[i]];
+                if (2*(temp+1) > nums.size())
+                    return nums[i];
+                Imap.erase(nums[i]);
+                Imap.insert(pair<int, int>(nums[i], temp+1));
             }
-
-            chars.insert(c[i]);
-            swap(i,x);
-            recur(x+1);
-            swap(x,i);
-            i++;
         }
-    }
 
-    void swap(int a, int b)
-    {
-        char tmp = c[a];
-        c[a] = c[b];
-        c[b] = tmp;
+        for (auto &p:Imap)
+            cout << p.first << " : " << p.second << endl;
+
+        return Imap.begin()->first;
     }
 };
 
+#elif 1
+class Solution {
+public:
+    int majorityElement(vector<int>& nums) {
+        int x = 0, votes = 0;
+        for (int num : nums)
+        {
+            if (votes == 0)
+                x = num;
+            votes += (num == x ? 1 : -1);
+        }
+        // return x;
+        // 验证 x 是否为众数
+        int count = 0;
+        for(int num : nums)
+            if(num == x) count++;
+        return count > nums.size() / 2 ? x : 0; // 当无众数时返回 0
+    }
+};
+#endif
+
 int main() {
-    string s = "abb";
+    vector<int> nums = {3};
 
     Solution solve;
-    vector<string> res = solve.permutation(s);
-
-    for (auto &p:res)
-        cout << p << endl;
+    cout << solve.majorityElement(nums) << endl;
 
     cout << "\nFinish";
     return 0;
