@@ -1,51 +1,53 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-class MedianFinder {
+#if 1
+/// DP 解法
+class Solution {
 public:
-    /** initialize your data structure here. */
-    priority_queue<int, vector<int>, less<int>> maxheap;
-    priority_queue<int, vector<int>, greater<int>> minheap;
-
-    MedianFinder() {
-
-    }
-
-    void addNum(int num) {
-        if (maxheap.size() != minheap.size()) {
-            minheap.push(num);
-            maxheap.push(minheap.top());
-            minheap.pop();
-        } else {
-            maxheap.push(num);
-            minheap.push(maxheap.top());
-            maxheap.pop();
+    int maxSubArray(vector<int>& nums) {
+        int res = nums[0];
+        for (int i = 1; i < nums.size(); ++i) {
+            if (nums[i-1] > 0)
+                nums[i] = nums[i-1] + nums[i];
+            res = max(res,nums[i]);
         }
-    }
-
-    double findMedian() {
-        return maxheap.size() == minheap.size() ?
-               ((maxheap.top() + minheap.top())*0.5) :
-               minheap.top();
+        return res;
     }
 };
 
-/**
- * Your MedianFinder object will be instantiated and called as such:
- * MedianFinder* obj = new MedianFinder();
- * obj->addNum(num);
- * double param_2 = obj->findMedian();
- */
+#elif 1
+/// 循环解法
+class Solution {
+public:
+    int maxSubArray(vector<int>& nums) {
+        if (nums.empty())
+            return 0;
+
+        int nCurSum = 0;
+        int nGreatestSum = 0x80000000;      // int 最小负数
+        for (auto p:nums)
+        {
+            if (nCurSum <= 0)
+                nCurSum = p;
+            else
+                nCurSum += p;
+
+            if (nCurSum > nGreatestSum)
+                nGreatestSum = nCurSum;
+        }
+
+        return nGreatestSum;
+    }
+};
+#endif
+
 
 int main() {
+    vector<int> nums = {-2,1,-3,4,-1,2,1,-5,4};
 
-    MedianFinder* obj = new MedianFinder();
-    obj->addNum(1);
-    obj->addNum(2);
-    cout << obj->findMedian() << endl;
-    obj->addNum(3);
-    cout << obj->findMedian() << endl;
-
+    Solution solve;
+    cout << solve.maxSubArray(nums) << endl;
 
     cout << "\nFinish";
     return 0;
