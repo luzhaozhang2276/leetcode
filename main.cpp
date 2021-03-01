@@ -2,52 +2,35 @@
 using namespace std;
 
 #if 1
-/// DP 解法
+
 class Solution {
 public:
-    int maxSubArray(vector<int>& nums) {
-        int res = nums[0];
-        for (int i = 1; i < nums.size(); ++i) {
-            if (nums[i-1] > 0)
-                nums[i] = nums[i-1] + nums[i];
-            res = max(res,nums[i]);
-        }
-        return res;
-    }
-};
+    int countDigitOne(int n) {
+        long int digit = 1;
+        int res = 0, high = n / 10, cur = n % 10, low = 0;
 
-#elif 1
-/// 循环解法
-class Solution {
-public:
-    int maxSubArray(vector<int>& nums) {
-        if (nums.empty())
-            return 0;
-
-        int nCurSum = 0;
-        int nGreatestSum = 0x80000000;      // int 最小负数
-        for (auto p:nums)
-        {
-            if (nCurSum <= 0)
-                nCurSum = p;
+        while (high != 0 || cur != 0) {
+            if (cur == 0)
+                res += high * digit;
+            else if (cur == 1)
+                res += high * digit + low + 1;
             else
-                nCurSum += p;
+                res += (high + 1) * digit;
 
-            if (nCurSum > nGreatestSum)
-                nGreatestSum = nCurSum;
+            low += cur * digit;     // 将cur加入low,进行下一层循环
+            cur = high % 10;        // 下一层的cur是本轮high的最低位
+            high /= 10;             // 将最低位删除,成为新的high
+            digit *= 10;            // 位因子每次*10
         }
 
-        return nGreatestSum;
+        return res;
     }
 };
 #endif
 
-
 int main() {
-    vector<int> nums = {-2,1,-3,4,-1,2,1,-5,4};
-
     Solution solve;
-    cout << solve.maxSubArray(nums) << endl;
+    cout << solve.countDigitOne(1410065408) << endl;
 
     cout << "\nFinish";
     return 0;
