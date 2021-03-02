@@ -2,63 +2,78 @@
 using namespace std;
 
 #if 1
-/// leetcode
+/// 手写快排
 class Solution {
 public:
-    int findNthDigit(int n) {
-        int digit = 1;
-        long start = 1, count = 9;
-        while (n > count) {     // 确定位数 digit, 起始位 start
-            n -= count;
-            digit++;
-            start *= 10;
-            count = digit * start * 9;
-        }
-        long num = start + (n - 1) / digit;     // 确定数字 num
-        string number = to_string(num);
-        return number[(n - 1)%digit] - '0';     // num 中的哪一位
+    string minNumber(vector<int>& nums) {
+        string res;
+        vector<string> strs;
+        strs.reserve(nums.size());
+        for (auto p:nums)
+            strs.push_back(to_string(p));
+
+        // 内置函数排序
+        // sort(strs.begin(), strs.end(), [](string& s1,string& s2){ return s1 + s2 < s2 + s1;});
+        fastSort(strs, 0, strs.size() - 1);
+        for (auto s:strs)
+            res += s;
+
+        return res;
     }
+
+    void fastSort(vector<string>& strs, int l, int r) {
+        if (l >= r)
+            return;
+
+        int i = l, j = r;
+        string temp;
+        while (i < j) {
+            while ((strs[j] + strs[l]).compare(strs[l] + strs[j]) >= 0 && i < j)
+                j--;
+            while ((strs[i] + strs[l]).compare(strs[l] + strs[i]) <= 0 && i < j)
+                i++;
+            temp = strs[i];
+            strs[i] = strs[j];
+            strs[j] = temp;
+        }
+
+        strs[i] = strs[l];
+        strs[l] = temp;
+        fastSort(strs, l, i - 1);
+        fastSort(strs, i + 1, r);
+    }
+
 };
+
 #elif 1
-/// 自己
+/// 内置函数 快排
 class Solution {
 public:
-    int findNthDigit(long int n) {
-        if (n < 10)
-            return n;
+    string minNumber(vector<int>& nums) {
+        string res;
+        vector<string> strs;
+        strs.reserve(nums.size());
+        for (auto p:nums)
+            strs.push_back(to_string(p));
 
-        n++;
-        long int sum = 10;
-        long int digit = 1, base = 9;
-        while (n > sum) {
-            digit++;
-            base *= 10;
-            sum += base * digit;
-        }
-        int offset = n - (sum - base * digit);
-        int num = offset / digit + pow(10,digit-1);
-        num = (offset % digit == 0) ? num - 1 : num;
-        //cout << num << endl;
+        // 内置函数排序
+        sort(strs.begin(), strs.end(), [](string& s1,string& s2){ return s1 + s2 < s2 + s1;});
+        for (auto s:strs)
+            res += s;
 
-        int tmp = num / pow(10, digit - offset % digit);
-        return (offset % digit == 0) ? num%10 : tmp%10;
+        return res;
     }
 };
+
 #endif
 
 int main() {
-    Solution solve;
-    cout << solve.findNthDigit(200) << endl;
+    vector<int> nums = {3, 30, 34, 5, 9};
 
-//    int num = 12345;
-//    int s = 5;
-//    int res = num / pow(10, 5 - s);
-//    cout << res%10 << endl;
-//    while (num % 10)
-//    {
-//        cout << num%10 << " ";
-//        num /= 10;
-//    }
+    Solution solve;
+    string res;
+    res = solve.minNumber(nums);
+    cout << res << endl;
 
     cout << "\nFinish";
     return 0;
