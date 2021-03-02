@@ -1,79 +1,67 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-#if 1
-/// 手写快排
+#if 0
+/// 递归
 class Solution {
 public:
-    string minNumber(vector<int>& nums) {
-        string res;
-        vector<string> strs;
-        strs.reserve(nums.size());
-        for (auto p:nums)
-            strs.push_back(to_string(p));
-
-        // 内置函数排序
-        // sort(strs.begin(), strs.end(), [](string& s1,string& s2){ return s1 + s2 < s2 + s1;});
-        fastSort(strs, 0, strs.size() - 1);
-        for (auto s:strs)
-            res += s;
-
-        return res;
+    int translateNum(int num) {
+        string s = to_string(num);
+        return recur(s, 0);
     }
 
-    void fastSort(vector<string>& strs, int l, int r) {
-        if (l >= r)
-            return;
+    int recur(string& s, int idx) {
+        int n = s.size();
+        if(idx == n)
+            return 1;
 
-        int i = l, j = r;
-        string temp;
-        while (i < j) {
-            while ((strs[j] + strs[l]).compare(strs[l] + strs[j]) >= 0 && i < j)
-                j--;
-            while ((strs[i] + strs[l]).compare(strs[l] + strs[i]) <= 0 && i < j)
-                i++;
-            temp = strs[i];
-            strs[i] = strs[j];
-            strs[j] = temp;
+        if (idx == n - 1 || s[idx] == '0' || s.substr(idx, 2) > "25")
+            return recur(s, idx + 1);
+
+        return recur(s, idx + 1) + recur(s, idx + 2);
+    }
+};
+#elif 1
+/// DP动态规划 字符串遍历
+class Solution {
+public:
+    int translateNum(int num) {
+        string s = to_string(num);
+        int a = 1, b = 1;
+        for (int i = 2; i <= s.length(); ++i) {
+            string temp = s.substr(i - 2, 2);
+            int c = temp.compare("10") >= 0 && temp.compare("25") <= 0 ?
+                    a + b : a;
+            b = a;
+            a = c;
         }
-
-        strs[i] = strs[l];
-        strs[l] = temp;
-        fastSort(strs, l, i - 1);
-        fastSort(strs, i + 1, r);
+        return a;
     }
-
 };
 
 #elif 1
-/// 内置函数 快排
+/// DP动态规划 数字取余
 class Solution {
 public:
-    string minNumber(vector<int>& nums) {
-        string res;
-        vector<string> strs;
-        strs.reserve(nums.size());
-        for (auto p:nums)
-            strs.push_back(to_string(p));
-
-        // 内置函数排序
-        sort(strs.begin(), strs.end(), [](string& s1,string& s2){ return s1 + s2 < s2 + s1;});
-        for (auto s:strs)
-            res += s;
-
-        return res;
+    int translateNum(int num) {
+        int a = 1, b = 1, x, y = num % 10;
+        while (num != 0) {
+            num /= 10;
+            x = num % 10;
+            int tmp = 10 * x + y;
+            int c = (tmp >= 10 && tmp <= 25) ? a + b : a;
+            b = a;
+            a = c;
+            y = x;
+        }
+        return a;
     }
 };
-
 #endif
 
 int main() {
-    vector<int> nums = {3, 30, 34, 5, 9};
-
     Solution solve;
-    string res;
-    res = solve.minNumber(nums);
-    cout << res << endl;
+    cout << "sum = " << solve.translateNum(25) << endl;
 
     cout << "\nFinish";
     return 0;
