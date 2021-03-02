@@ -2,66 +2,57 @@
 using namespace std;
 
 #if 0
-/// 递归
+/// DP 动态规划
 class Solution {
 public:
-    int translateNum(int num) {
-        string s = to_string(num);
-        return recur(s, 0);
-    }
-
-    int recur(string& s, int idx) {
-        int n = s.size();
-        if(idx == n)
-            return 1;
-
-        if (idx == n - 1 || s[idx] == '0' || s.substr(idx, 2) > "25")
-            return recur(s, idx + 1);
-
-        return recur(s, idx + 1) + recur(s, idx + 2);
-    }
-};
-#elif 1
-/// DP动态规划 字符串遍历
-class Solution {
-public:
-    int translateNum(int num) {
-        string s = to_string(num);
-        int a = 1, b = 1;
-        for (int i = 2; i <= s.length(); ++i) {
-            string temp = s.substr(i - 2, 2);
-            int c = temp.compare("10") >= 0 && temp.compare("25") <= 0 ?
-                    a + b : a;
-            b = a;
-            a = c;
+    int maxValue(vector<vector<int>>& grid) {
+        int m = grid.size(), n = grid[0].size();
+        for (int i = 0; i < m; ++i) {
+            for (int j = 0; j < n; ++j) {
+                if (i == 0 && j == 0)           // 处理边界
+                    continue;
+                if (i == 0)
+                    grid[i][j] += grid[i][j-1]; // 边界
+                else if (j == 0)
+                    grid[i][j] += grid[i-1][j]; // 边界
+                else
+                    grid[i][j] += max(grid[i][j-1], grid[i-1][j]);
+            }
         }
-        return a;
+        return grid[m-1][n-1];
     }
 };
 
 #elif 1
-/// DP动态规划 数字取余
+/// DP 预处理边界值
 class Solution {
 public:
-    int translateNum(int num) {
-        int a = 1, b = 1, x, y = num % 10;
-        while (num != 0) {
-            num /= 10;
-            x = num % 10;
-            int tmp = 10 * x + y;
-            int c = (tmp >= 10 && tmp <= 25) ? a + b : a;
-            b = a;
-            a = c;
-            y = x;
-        }
-        return a;
+    int maxValue(vector<vector<int>>& grid) {
+        int m = grid.size(), n = grid[0].size();
+
+        for (int i = 1; i < m; ++i)
+            grid[i][0] += grid[i-1][0];
+        for (int j = 1; j < n; ++j)
+            grid[0][j] += grid[0][j-1];
+
+        for (int i = 1; i < m; ++i)
+            for (int j = 1; j < n; ++j)
+                    grid[i][j] += max(grid[i][j-1], grid[i-1][j]);
+
+        return grid[m-1][n-1];
     }
 };
+
 #endif
 
 int main() {
+    vector<vector<int>> grid;
+    grid.push_back({1,3,1});
+    grid.push_back({1,5,1});
+    grid.push_back({4,2,1});
+
     Solution solve;
-    cout << "sum = " << solve.translateNum(25) << endl;
+    cout << "sum = " << solve.maxValue(grid) << endl;
 
     cout << "\nFinish";
     return 0;
