@@ -2,35 +2,63 @@
 using namespace std;
 
 #if 1
-
+/// leetcode
 class Solution {
 public:
-    int countDigitOne(int n) {
-        long int digit = 1;
-        int res = 0, high = n / 10, cur = n % 10, low = 0;
-
-        while (high != 0 || cur != 0) {
-            if (cur == 0)
-                res += high * digit;
-            else if (cur == 1)
-                res += high * digit + low + 1;
-            else
-                res += (high + 1) * digit;
-
-            low += cur * digit;     // 将cur加入low,进行下一层循环
-            cur = high % 10;        // 下一层的cur是本轮high的最低位
-            high /= 10;             // 将最低位删除,成为新的high
-            digit *= 10;            // 位因子每次*10
+    int findNthDigit(int n) {
+        int digit = 1;
+        long start = 1, count = 9;
+        while (n > count) {     // 确定位数 digit, 起始位 start
+            n -= count;
+            digit++;
+            start *= 10;
+            count = digit * start * 9;
         }
+        long num = start + (n - 1) / digit;     // 确定数字 num
+        string number = to_string(num);
+        return number[(n - 1)%digit] - '0';     // num 中的哪一位
+    }
+};
+#elif 1
+/// 自己
+class Solution {
+public:
+    int findNthDigit(long int n) {
+        if (n < 10)
+            return n;
 
-        return res;
+        n++;
+        long int sum = 10;
+        long int digit = 1, base = 9;
+        while (n > sum) {
+            digit++;
+            base *= 10;
+            sum += base * digit;
+        }
+        int offset = n - (sum - base * digit);
+        int num = offset / digit + pow(10,digit-1);
+        num = (offset % digit == 0) ? num - 1 : num;
+        //cout << num << endl;
+
+        int tmp = num / pow(10, digit - offset % digit);
+        return (offset % digit == 0) ? num%10 : tmp%10;
     }
 };
 #endif
 
 int main() {
     Solution solve;
-    cout << solve.countDigitOne(1410065408) << endl;
+    cout << solve.findNthDigit(200) << endl;
+
+//    int num = 12345;
+//    int s = 5;
+//    int res = num / pow(10, 5 - s);
+//    cout << res%10 << endl;
+//    while (num % 10)
+//    {
+//        cout << num%10 << " ";
+//        num /= 10;
+//    }
 
     cout << "\nFinish";
     return 0;
