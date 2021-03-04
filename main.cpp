@@ -8,28 +8,13 @@ struct TreeNode {
     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
 };
 
+/// 递归  DFS(后序遍历,深度优先遍历)
 class Solution {
 public:
-    int kthLargest(TreeNode* root, int k) {
-        this->k = k;
-        recur(root);
-        return res;
-    }
-
-private:
-    int k, res;
-    void recur(TreeNode *root) {
+    int maxDepth(TreeNode* root) {
         if (root == nullptr)
-            return;
-
-        recur(root->right);
-
-        if (k == 0)     // 提前返回
-            return;
-        if (--k == 0)
-            res = root->val;
-
-        recur(root->left);
+            return 0;
+        return max(maxDepth(root->left), maxDepth(root->right)) + 1;    // 深度 + 1
     }
 };
 
@@ -74,7 +59,7 @@ int main() {
     TreeNode *tree = createTree(nums);
 
     Solution solve;
-    cout << "num = " << solve.kthLargest(tree, 3) << endl;
+    cout << "num = " << solve.maxDepth(tree) << endl;
 
     cout << "\nFinish";
     return 0;
