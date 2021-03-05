@@ -1,40 +1,70 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-// 异或运算:
-//      1. 相同为0,不同为1
-//      2. 满足交换律
+#if 1
+/// 哈希表
 class Solution {
 public:
-    vector<int> singleNumbers(vector<int>& nums) {
-        int x = 0, y = 0, n = 0, m = 1;
+    int singleNumber(vector<int>& nums) {
+        unordered_map<int, int> hashmap;
 
-        // 1. 遍历异或,得到 x OR y 的结果(二进制)
-        for (int num:nums)
-            n ^= num;
+        for (int i : nums)
+            ++hashmap[i];
 
-        // 2. 获取整数 x OR y 首位 1 (即不同的二进制位)
-        while ((n & m) == 0)
-            m <<= 1;
-
-        // 3. 遍历并分组
-        for (int num:nums) {
-            if (num & m)    // 根据x y对应的二进制位m不同,能够分成两组,分别组内异或求取x y (不用单独开辟空间保存分组,在原始数据上进行)
-                x ^= num;
-            else
-                y ^=  num;
+        unordered_map<int, int>::const_iterator itr;
+        for (int i : nums) {
+            itr = hashmap.find(i);
+            if (itr->second == 1)
+                return itr->first;
         }
 
-        return vector<int> {x, y};
+        return -1;
     }
 };
 
+#elif 1
+/// 有限状态自动机
+class Solution {
+public:
+    int singleNumber(vector<int>& nums) {
+        int high = 0, low = 0;
+        for (int num : nums) {
+            low  = low ^ num & ~high;   // 直接对32位都进行了运算
+            high = high ^ num & ~low;
+        }
+        return low;
+    }
+};
+
+#elif 1
+/// 遍历统计
+class Solution {
+public:
+    int singleNumber(vector<int>& nums) {
+        int counts[32] = {0};
+        for (auto num:nums) {
+            for (int j = 0; j < 32; ++j) {
+                counts[j] += num & 1;   // 更新第 j 位 (判断最低位，下一步右移更新)
+                num >>= 1;              // j -> j+1
+            }
+        }
+
+        int res = 0, m = 3;
+        for (int i = 0; i < 32; ++i) {
+            res <<= 1;
+            res |= counts[31 - i] % m;
+        }
+
+        return res;
+    }
+};
+#endif
+
 int main() {
-    vector<int> nums = {4,1,4,6};
+    vector<int> nums = {3,4,3,3};
 
     Solution solve;
-    for (auto p:solve.singleNumbers(nums))
-        cout << p << ' ';
+    cout << "res = " << solve.singleNumber(nums) << endl;
 
     cout << "\nFinish";
     return 0;
