@@ -8,15 +8,55 @@ struct TreeNode {
     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
 };
 
-/// 递归  DFS(后序遍历,深度优先遍历)
+#if 0
+/// 后序遍历 + 剪枝(从底至顶)
 class Solution {
 public:
-    int maxDepth(TreeNode* root) {
+    bool isBalanced(TreeNode* root) {
+        return recur(root) != -1;
+    }
+
+private:
+    int recur(TreeNode* root) {
         if (root == nullptr)
             return 0;
-        return max(maxDepth(root->left), maxDepth(root->right)) + 1;    // 深度 + 1
+
+        int left = recur(root->left);
+        if (left == -1)
+            return -1;
+
+        int right = recur(root->right);
+        if (right == -1)
+            return -1;
+
+        return abs(left - right) < 2 ? max(left, right) + 1 : -1;
     }
 };
+
+#elif 1
+/// 先序遍历 + 判断深度(从顶至底)
+// 三种遍历方式都可以,但是相比于第一种(二叉树只遍历一次,记录深度值),不管是那种遍历方式,depth()都会遍历二叉树多次
+class Solution {
+public:
+    bool isBalanced(TreeNode* root) {
+        if (root == nullptr)
+            return true;
+        // 先序遍历
+        return abs(depth(root->left) - depth(root->right)) < 2 && isBalanced(root->left) && isBalanced(root->right);
+        // 后序遍历
+        // return isBalanced(root->left) && isBalanced(root->right) && abs(depth(root->left) - depth(root->right)) < 2;
+        // 中序遍历
+        // return isBalanced(root->left) && abs(depth(root->left) - depth(root->right)) < 2 && isBalanced(root->right);
+    }
+
+private:
+    int depth(TreeNode *root) {
+        if (root == nullptr)
+            return 0;
+        return max(depth(root->left), depth(root->right)) + 1;
+    }
+};
+#endif
 
 // 生成二叉树: 使用队列(先进先出)
 TreeNode* createTree(vector<int> &number)
@@ -59,7 +99,7 @@ int main() {
     TreeNode *tree = createTree(nums);
 
     Solution solve;
-    cout << "num = " << solve.maxDepth(tree) << endl;
+    cout << "res = " << solve.isBalanced(tree) << endl;
 
     cout << "\nFinish";
     return 0;
