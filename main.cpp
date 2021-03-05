@@ -1,105 +1,40 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
-
-#if 0
-/// 后序遍历 + 剪枝(从底至顶)
+// 异或运算:
+//      1. 相同为0,不同为1
+//      2. 满足交换律
 class Solution {
 public:
-    bool isBalanced(TreeNode* root) {
-        return recur(root) != -1;
-    }
+    vector<int> singleNumbers(vector<int>& nums) {
+        int x = 0, y = 0, n = 0, m = 1;
 
-private:
-    int recur(TreeNode* root) {
-        if (root == nullptr)
-            return 0;
+        // 1. 遍历异或,得到 x OR y 的结果(二进制)
+        for (int num:nums)
+            n ^= num;
 
-        int left = recur(root->left);
-        if (left == -1)
-            return -1;
+        // 2. 获取整数 x OR y 首位 1 (即不同的二进制位)
+        while ((n & m) == 0)
+            m <<= 1;
 
-        int right = recur(root->right);
-        if (right == -1)
-            return -1;
-
-        return abs(left - right) < 2 ? max(left, right) + 1 : -1;
-    }
-};
-
-#elif 1
-/// 先序遍历 + 判断深度(从顶至底)
-// 三种遍历方式都可以,但是相比于第一种(二叉树只遍历一次,记录深度值),不管是那种遍历方式,depth()都会遍历二叉树多次
-class Solution {
-public:
-    bool isBalanced(TreeNode* root) {
-        if (root == nullptr)
-            return true;
-        // 先序遍历
-        return abs(depth(root->left) - depth(root->right)) < 2 && isBalanced(root->left) && isBalanced(root->right);
-        // 后序遍历
-        // return isBalanced(root->left) && isBalanced(root->right) && abs(depth(root->left) - depth(root->right)) < 2;
-        // 中序遍历
-        // return isBalanced(root->left) && abs(depth(root->left) - depth(root->right)) < 2 && isBalanced(root->right);
-    }
-
-private:
-    int depth(TreeNode *root) {
-        if (root == nullptr)
-            return 0;
-        return max(depth(root->left), depth(root->right)) + 1;
-    }
-};
-#endif
-
-// 生成二叉树: 使用队列(先进先出)
-TreeNode* createTree(vector<int> &number)
-{
-    if (number.empty())
-        return nullptr;
-
-    auto ptr = number.begin();
-
-    TreeNode* root = new TreeNode(*ptr);
-    queue<TreeNode*> nodeQueue;
-    nodeQueue.push(root);
-    while (ptr != number.end())
-    {
-        TreeNode* node = nodeQueue.front();
-        nodeQueue.pop();
-
-        ptr++;
-        if(ptr != number.end() && *ptr != '\0') {
-            node->left = new TreeNode(*ptr);
-            nodeQueue.push(node->left);
+        // 3. 遍历并分组
+        for (int num:nums) {
+            if (num & m)    // 根据x y对应的二进制位m不同,能够分成两组,分别组内异或求取x y (不用单独开辟空间保存分组,在原始数据上进行)
+                x ^= num;
+            else
+                y ^=  num;
         }
 
-        if(ptr == number.end())
-            break;
-
-        ptr++;
-        if(ptr != number.end() && *ptr != '\0')
-        {
-            node->right = new TreeNode(*ptr);
-            nodeQueue.push(node->right);
-        }
+        return vector<int> {x, y};
     }
-
-    return root;
-}
+};
 
 int main() {
-    vector<int> nums = {5,3,6,2,4,NULL,NULL,1};
-    TreeNode *tree = createTree(nums);
+    vector<int> nums = {4,1,4,6};
 
     Solution solve;
-    cout << "res = " << solve.isBalanced(tree) << endl;
+    for (auto p:solve.singleNumbers(nums))
+        cout << p << ' ';
 
     cout << "\nFinish";
     return 0;
