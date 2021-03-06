@@ -1,43 +1,29 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-class MaxQueue {
-    queue<int> que;
-    deque<int> deq;
+
+class Solution {
 public:
-    MaxQueue() {
+    vector<double> dicesProbability(int n) {
+        double p = 1.0 / 6.0;
+        vector<double> dp(6, p);    // 此处模拟为二维数组, 但新状态只与前一个状态有关,此处可用一维实现
+        for (int i = 2; i <= n; ++i) {
+            vector<double> tmp(5 * i + 1, 0);
+            for (int j = 0; j < dp.size(); ++j)
+                for (int k = 0; k < 6; ++k)
+                    tmp[j + k] += dp[j] / 6.0;
 
-    }
-
-    int max_value() {
-        return deq.empty() ? -1 : deq.front();
-    }
-
-    void push_back(int value) {
-        que.push(value);
-        while (!deq.empty() && deq.back() < value)
-            deq.pop_back();
-        deq.push_back(value);
-    }
-
-    int pop_front() {
-        if (que.empty())
-            return -1;
-        if (deq.front() == que.front())
-            deq.pop_front();
-        int val = que.front();
-        que.pop();
-        return val;
+            dp = tmp;
+        }
+        return dp;
     }
 };
 
+
 int main() {
-    auto *obj = new MaxQueue;
-    obj->push_back(1);
-    obj->push_back(2);
-    cout << obj->max_value() << endl;
-    cout << obj->pop_front() << endl;
-    cout << obj->max_value() << endl;
+    Solution solve;
+    for (auto p : solve.dicesProbability(2))
+        cout << p << ' ';
 
     cout << "\nFinish";
     return 0;
