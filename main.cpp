@@ -1,56 +1,36 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-#if 1
-/// 集合set + 遍历
+#if 0
+/// DP + 迭代
 class Solution {
 public:
-    bool isStraight(vector<int>& nums) {
-        set<int> repeat;    // 用于查重
-        int max = 0, min = 14;
-
-        for (auto num : nums) {
-            if (num == 0)
-                continue;
-            max = max > num ? max : num;
-            min = min > num ? num : min;
-
-            if (repeat.find(num) != repeat.end())
-                return false;
-            repeat.insert(num);
-        }
-
-        return max - min < 5;
+    int lastRemaining(int n, int m) {
+        int x = 0;
+        for (int i = 2; i <= n; ++i)
+            x = (x + m) % i;
+        return x;
     }
 };
 
 #elif 1
-/// 排序 + 遍历
+/// 递归  (数据较多时,栈空间可能会溢出)
 class Solution {
 public:
-    bool isStraight(vector<int>& nums) {
-        int joker = 0;  // 王牌的数量
-        sort(nums.begin(), nums.end());
+    int lastRemaining(int n, int m) {
+        if (n == 1)
+            return 0;
 
-        for (int i = 0; i < 4; ++i) {
-            if (nums[i] == 0)
-                ++joker;
-            else if (nums[i] == nums[i + 1])    // 重复提前结束
-                return false;
-        }
-
-        return nums[4] - nums[joker] < 5;
+        int x = lastRemaining(n - 1, m);
+        return (x + m) % n;
     }
 };
 
 #endif
 
 int main() {
-    vector<int> nums = {4,6,7,5,3};
-
     Solution solve;
-    string res = solve.isStraight(nums) ? "True" : "False";
-    cout << "straight = " << res << endl;
+    cout << "res = " << solve.lastRemaining(5, 3) << endl;
 
     cout << "\nFinish";
     return 0;
