@@ -1,57 +1,38 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-#if 0
-/// 字符串切片
+/// 单调队列
 class Solution {
 public:
-    string reverseLeftWords(string s, int n) {
-        return s.substr(n, s.length()) + s.substr(0, n);
-    }
-};
+    vector<int> maxSlidingWindow(vector<int>& nums, int k) {
+        vector<int> res;
 
-#elif 0
-/// 字符串遍历拼接
-class Solution {
-public:
-    string reverseLeftWords(string s, int n) {
-        string res;
-        for (int i = n; i < s.length(); ++i)
-            res += s[i];
-        for (int i = 0; i < n; ++i)
-            res += s[i];
+        if (nums.empty() || k == 0)
+            return res;
+
+        deque<int> maxWindow;
+        for (int j = 0, i = 1 - k; j < nums.size(); ++i, ++j) {
+            if (i > 0 && maxWindow.front() == nums[i - 1])  // 最大值超出窗口,则删除队列中的最大值(队首出队)
+                maxWindow.pop_front();
+
+            while (!maxWindow.empty() && maxWindow.back() < nums[j])    // 保持 deque 单调递减
+                maxWindow.pop_back();
+            maxWindow.push_back(nums[j]);
+
+            if (i >= 0)     // 记录窗口的最大值
+                res.push_back(maxWindow.front());
+        }
+
         return res;
     }
 };
 
-#elif 1
-/// 三次翻转
-class Solution {
-public:
-    string reverseLeftWords(string s, int n) {
-        reverse_string(s, 0, s.length() - 1);
-        reverse_string(s, 0, s.length() - n - 1);
-        reverse_string(s, s.length() - n, s.length() - 1);
-        return s;
-    }
-
-private:
-    void reverse_string(string &s, int start, int end) {
-        for (int i = start; i <= (start + end) / 2; ++i) {
-            char tmp = s[i];
-            s[i] = s[start + end - i];
-            s[start + end - i] = tmp;
-        }
-    }
-};
-
-#endif
-
 int main() {
-    string str = "abcdefg";
+    vector<int> nums = {1,3,-1,-3,5,3,4,7};
 
     Solution solve;
-    cout << solve.reverseLeftWords(str, 2) << endl;
+    for (auto p : solve.maxSlidingWindow(nums, 3))
+        cout << p << ' ';
 
 
     cout << "\nFinish";
