@@ -1,29 +1,56 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-
+#if 1
+/// 集合set + 遍历
 class Solution {
 public:
-    vector<double> dicesProbability(int n) {
-        double p = 1.0 / 6.0;
-        vector<double> dp(6, p);    // 此处模拟为二维数组, 但新状态只与前一个状态有关,此处可用一维实现
-        for (int i = 2; i <= n; ++i) {
-            vector<double> tmp(5 * i + 1, 0);
-            for (int j = 0; j < dp.size(); ++j)
-                for (int k = 0; k < 6; ++k)
-                    tmp[j + k] += dp[j] / 6.0;
+    bool isStraight(vector<int>& nums) {
+        set<int> repeat;    // 用于查重
+        int max = 0, min = 14;
 
-            dp = tmp;
+        for (auto num : nums) {
+            if (num == 0)
+                continue;
+            max = max > num ? max : num;
+            min = min > num ? num : min;
+
+            if (repeat.find(num) != repeat.end())
+                return false;
+            repeat.insert(num);
         }
-        return dp;
+
+        return max - min < 5;
     }
 };
 
+#elif 1
+/// 排序 + 遍历
+class Solution {
+public:
+    bool isStraight(vector<int>& nums) {
+        int joker = 0;  // 王牌的数量
+        sort(nums.begin(), nums.end());
+
+        for (int i = 0; i < 4; ++i) {
+            if (nums[i] == 0)
+                ++joker;
+            else if (nums[i] == nums[i + 1])    // 重复提前结束
+                return false;
+        }
+
+        return nums[4] - nums[joker] < 5;
+    }
+};
+
+#endif
 
 int main() {
+    vector<int> nums = {4,6,7,5,3};
+
     Solution solve;
-    for (auto p : solve.dicesProbability(2))
-        cout << p << ' ';
+    string res = solve.isStraight(nums) ? "True" : "False";
+    cout << "straight = " << res << endl;
 
     cout << "\nFinish";
     return 0;
