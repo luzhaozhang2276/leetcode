@@ -1,36 +1,23 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-#if 0
-/// DP + 迭代
 class Solution {
 public:
-    int lastRemaining(int n, int m) {
-        int x = 0;
-        for (int i = 2; i <= n; ++i)
-            x = (x + m) % i;
-        return x;
+    int maxProfit(vector<int>& prices) {
+        int cost = INT_MAX, maxdif = 0;
+        for (auto price : prices) {
+            cost = min(cost, price);
+            maxdif = max(maxdif, price - cost);
+        }
+        return maxdif;
     }
 };
-
-#elif 1
-/// 递归  (数据较多时,栈空间可能会溢出)
-class Solution {
-public:
-    int lastRemaining(int n, int m) {
-        if (n == 1)
-            return 0;
-
-        int x = lastRemaining(n - 1, m);
-        return (x + m) % n;
-    }
-};
-
-#endif
 
 int main() {
+    vector<int> prices = {7,1,5,3,6,4};
+
     Solution solve;
-    cout << "res = " << solve.lastRemaining(5, 3) << endl;
+    cout << "profit = " << solve.maxProfit(prices) << endl;
 
     cout << "\nFinish";
     return 0;
