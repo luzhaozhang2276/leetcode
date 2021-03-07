@@ -1,40 +1,110 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+};
+
+#if 0
+/// 迭代
 class Solution {
 public:
-    int strToInt(string str) {
-        str.erase(0, str.find_first_not_of(' '));
-        if (str.empty())
-            return 0;
-
-        int i = 1, sign = 1;
-        if (str[0] == '-')
-            sign = -1;
-        else if (str[0] != '+')
-            i = 0;
-
-        int res = 0, boundary = INT_MAX / 10;
-        for (int j = i; j < str.length(); ++j) {
-            if (str[j] < '0' || str[j] > '9')
-                break;
-
-            if (res > boundary || res == boundary && str[j] > '7')
-                return sign == 1 ? INT_MAX : INT_MIN;
-
-            res = 10 * res + (str[j] - '0');
+    TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
+        while (root != nullptr) {
+            if (root->val < p->val && root->val < q->val)
+                root = root->right;
+            else if (root->val > p->val && root->val > q->val)
+                root = root->left;
+            else break;
         }
-
-        return sign * res;
+        return root;
     }
 };
 
+#elif 0
+/// 迭代 (减少判断次数)
+class Solution {
+public:
+    TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
+        if(p->val > q->val) { // 保证 p.val < q.val
+            TreeNode* tmp = p;
+            p = q;
+            q = tmp;
+        }
+
+        while (root != nullptr) {
+            if (root->val < p->val)
+                root = root->right;
+            else if (root->val > q->val)
+                root = root->left;
+            else break;
+        }
+        return root;
+    }
+};
+
+#elif 1
+/// 递归
+class Solution {
+public:
+    TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
+        if (root->val < p->val && root->val < q->val)
+            return lowestCommonAncestor(root->right, p, q);
+        if (root->val > p->val && root->val > q->val)
+            return lowestCommonAncestor(root->left, p, q);
+        return root;
+    }
+};
+
+#endif
+
+// 生成二叉树: 使用队列(先进先出)
+TreeNode* createTree(vector<int> &number)
+{
+    if (number.empty())
+        return nullptr;
+
+    auto ptr = number.begin();
+
+    TreeNode* root = new TreeNode(*ptr);
+    queue<TreeNode*> nodeQueue;
+    nodeQueue.push(root);
+    while (ptr != number.end())
+    {
+        TreeNode* node = nodeQueue.front();
+        nodeQueue.pop();
+
+        ptr++;
+        if(ptr != number.end() && *ptr != '\0') {
+            node->left = new TreeNode(*ptr);
+            nodeQueue.push(node->left);
+        }
+
+        if(ptr == number.end())
+            break;
+
+        ptr++;
+        if(ptr != number.end() && *ptr != '\0')
+        {
+            node->right = new TreeNode(*ptr);
+            nodeQueue.push(node->right);
+        }
+    }
+
+    return root;
+}
+
 
 int main() {
-    string str = "  -42c";
+    vector<int> nums = {6,2,8,0,4,7,9,NULL,NULL,3,5};
+    TreeNode *tree = createTree(nums);
+
 
     Solution solve;
-    cout << "res = " << solve.strToInt(str) << endl;
+    cout << "res = " << solve.lowestCommonAncestor(tree, tree->left->right, tree->right)->val << endl;
 
     cout << "\nFinish";
     return 0;
