@@ -2,29 +2,47 @@
 using namespace std;
 
 #if 0
-/// 位运算 : 与 + 异或
+/// 表格分区 : 双循环 依次遍历下三角和上三角
 class Solution {
 public:
-    int add(int a, int b) {
-        // 此处是将 a + b 转换成了 n + c ,并进行下一次调用(循环)
-        while (b != 0) {    // 当进位为 0 时,跳出循环
-            int c = unsigned(a & b) << 1;   // c = 进位   (C++ 负数不支持移位操作,不正确)
-            a ^= b;         // a = 非进位和
-            b = c;          // b = 进位
+    vector<int> constructArr(vector<int>& a) {
+        vector<int> b(a.size(), 1);
+//        if (a.empty())
+//            return b;
+//
+//        b[0] = 1;
+        for (int i = 1; i < a.size(); ++i)      // 计算下三角
+            b[i] = b[i - 1] * a[i - 1];
+
+        int tmp = 1;        // 计算上三角
+        for (int i = a.size() - 2; i >= 0; --i) {
+            tmp *= a[i + 1];
+            b[i] *= tmp;
         }
-        return a;
+
+        return b;
     }
 };
 
 #elif 1
-/// 递归
+/// 改进: 一次循环   两端同时进行
 class Solution {
 public:
-    int add(int a, int b) {
-        // a(非进位和),b(进位和)
-        // b == 0 即当前进位和为0,退出循环
-        // 新的循环: a = a^b, b = unsigned(a & b) << 1
-        return b == 0 ? a : add(a^b, unsigned(a & b) << 1);
+    vector<int> constructArr(vector<int>& a) {
+        int len = a.size();
+        vector<int> b(len, 1);
+        if (a.empty())
+            return b;
+
+        int left = 1, right = 1;
+        for (int i = 0; i < len; ++i) {
+            b[i] *= left;
+            left *= a[i];               // 计算左边乘积
+
+            b[len - i - 1] *= right;
+            right *= a[len - i - 1];    // 计算右边乘积
+        }
+        return b;
     }
 };
 
@@ -32,8 +50,11 @@ public:
 
 
 int main() {
+    vector<int> nums = {1,2,3,4,5};
+
     Solution solve;
-    cout << "-1 + 2 = " << solve.add(-1, 2) << endl;
+    for (auto sum : solve.constructArr(nums))
+        cout << sum << ' ';
 
     cout << "\nFinish";
     return 0;
