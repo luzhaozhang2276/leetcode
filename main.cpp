@@ -9,57 +9,50 @@ struct TreeNode {
 };
 
 #if 0
-/// 迭代
+/// 后序遍历DFS (左右根)
+// 简化版本
 class Solution {
 public:
     TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
-        while (root != nullptr) {
-            if (root->val < p->val && root->val < q->val)
-                root = root->right;
-            else if (root->val > p->val && root->val > q->val)
-                root = root->left;
-            else break;
-        }
-        return root;
-    }
-};
+        if (root == nullptr || root == p || root == q)
+            return root;
 
-#elif 0
-/// 迭代 (减少判断次数)
-class Solution {
-public:
-    TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
-        if(p->val > q->val) { // 保证 p.val < q.val
-            TreeNode* tmp = p;
-            p = q;
-            q = tmp;
-        }
+        auto left = lowestCommonAncestor(root->left, p, q);
+        auto right = lowestCommonAncestor(root->right, p, q);
 
-        while (root != nullptr) {
-            if (root->val < p->val)
-                root = root->right;
-            else if (root->val > q->val)
-                root = root->left;
-            else break;
-        }
+        if (left == nullptr)
+            return right;
+        if (right == nullptr)
+            return left;
+
         return root;
     }
 };
 
 #elif 1
-/// 递归
+/// 后序遍历DFS (左右根)
 class Solution {
 public:
     TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
-        if (root->val < p->val && root->val < q->val)
-            return lowestCommonAncestor(root->right, p, q);
-        if (root->val > p->val && root->val > q->val)
-            return lowestCommonAncestor(root->left, p, q);
-        return root;
+        if (root == nullptr || root == p || root == q)
+            return root;
+
+        auto left = lowestCommonAncestor(root->left, p, q);
+        auto right = lowestCommonAncestor(root->right, p, q);
+
+        if (left == nullptr && right == nullptr)    // 1. 同时为空: 说明左右子树都不包含p,q,返回nullptr
+            return nullptr;
+        if (left == nullptr)    // 3. 均不在left,返回right
+            return right;
+        if (right == nullptr)   // 4. 均不在right,返回left
+            return left;
+
+        return root;        // 2. 同时不为空: 说明在异侧,此时的root即为最近公共祖先
     }
 };
 
 #endif
+
 
 // 生成二叉树: 使用队列(先进先出)
 TreeNode* createTree(vector<int> &number)
