@@ -1,28 +1,53 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-/// 哈希表
+struct ListNode {
+    int val;
+    ListNode *next;
+    ListNode() : val(0), next(nullptr) {}
+    ListNode(int x) : val(x), next(nullptr) {}
+    ListNode(int x, ListNode *next) : val(x), next(next) {}
+};
+
+/// 2. 两数相加
+// 双指针
 class Solution {
 public:
-    vector<int> twoSum(vector<int>& nums, int target) {
-        unordered_map<int, int> hashmap;
-        for (int i = 0; i < nums.size(); ++i) {
-            auto iter = hashmap.find(target - nums[i]);
-            if (iter != hashmap.end())
-                return {iter->second, i};
-            hashmap[nums[i]] = i;
+    ListNode* addTwoNumbers(ListNode* l1, ListNode* l2) {
+        ListNode *head = nullptr, *tail = nullptr;  // 首尾指针
+        int carry = 0;      // 进位
+        while (l1 || l2) {
+            int n1 = l1 ? l1->val : 0;  // 为空则不更新数据
+            int n2 = l2 ? l2->val : 0;
+            int sum = n1 + n2 + carry;
+
+            if (!head)      // 初建头结点
+                head = tail = new ListNode(sum % 10);
+            else {
+                tail->next = new ListNode(sum % 10);
+                tail = tail->next;
+            }
+            carry = sum / 10;
+            if (l1)
+                l1 = l1->next;
+            if (l2)
+                l2 = l2->next;
         }
-        return {};
+
+        if (carry > 0)      // 最后的进位
+            tail->next = new ListNode(carry);
+
+        return head;
     }
 };
 
 
 int main() {
-    vector<int> nums = {2,7,11,15};
+    vector<int> numsA = {2,4,3};
+    vector<int> numsB = {5,6,4};
+
 
     Solution solve;
-    for (auto p:solve.twoSum(nums, 9))
-        cout << p << ' ';
 
     cout << "\nFinish";
     return 0;
