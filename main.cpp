@@ -1,53 +1,29 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-struct ListNode {
-    int val;
-    ListNode *next;
-    ListNode() : val(0), next(nullptr) {}
-    ListNode(int x) : val(x), next(nullptr) {}
-    ListNode(int x, ListNode *next) : val(x), next(next) {}
-};
-
-/// 2. 两数相加
-// 双指针
+/// 3. 无重复字符的最长子串
+// 哈希表 + 双指针 + 滑动窗口
 class Solution {
 public:
-    ListNode* addTwoNumbers(ListNode* l1, ListNode* l2) {
-        ListNode *head = nullptr, *tail = nullptr;  // 首尾指针
-        int carry = 0;      // 进位
-        while (l1 || l2) {
-            int n1 = l1 ? l1->val : 0;  // 为空则不更新数据
-            int n2 = l2 ? l2->val : 0;
-            int sum = n1 + n2 + carry;
-
-            if (!head)      // 初建头结点
-                head = tail = new ListNode(sum % 10);
-            else {
-                tail->next = new ListNode(sum % 10);
-                tail = tail->next;
-            }
-            carry = sum / 10;
-            if (l1)
-                l1 = l1->next;
-            if (l2)
-                l2 = l2->next;
+    int lengthOfLongestSubstring(string s) {
+        int l = -1, r = 0, maxLength = 0;
+        unordered_map<char, int> hashmap;   // 哈希表用于查找重复字符, 键值: 当前字符最后一次出现的索引
+        for (; r < s.length(); ++r) {
+            if (hashmap.find(s[r]) != hashmap.end())
+                l = max(l, hashmap[s[r]]);  // 滑窗起点
+            hashmap[s[r]] = r;
+            maxLength = max(maxLength, r - l);  // 实时维护最大量
         }
-
-        if (carry > 0)      // 最后的进位
-            tail->next = new ListNode(carry);
-
-        return head;
+        return maxLength;
     }
 };
 
 
 int main() {
-    vector<int> numsA = {2,4,3};
-    vector<int> numsB = {5,6,4};
-
+    string s = "abcabcbb";
 
     Solution solve;
+    cout << "res = " << solve.lengthOfLongestSubstring(s) << endl;
 
     cout << "\nFinish";
     return 0;
