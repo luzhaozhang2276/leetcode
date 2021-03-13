@@ -1,52 +1,74 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-/// 4. 寻找两个正序数组的中位数
-// 二分法 : 题目要求时间复杂度为 O(log(m+n)), 通常需要使用到二分法
+/// 5. 最长回文子串
+
+#if 0
+// dp
 class Solution {
 public:
-    double findMedianSortedArrays(vector<int>& nums1, vector<int>& nums2) {
-        m = nums1.size();
-        n = nums2.size();
-        if ((m+n)&1)    // 判断奇偶
-            return topK(nums1, nums2, (m+n)/2 + 1);     // 奇数
-        else
-            return (topK(nums1, nums2, (m+n)/2) + topK(nums1, nums2, (m+n)/2 + 1))/2.0;
-    }
+    string longestPalindrome(string s) {
+        int n = s.size();
+        vector<vector<bool>> dp(n, vector<bool>(n, false)); // 只利用上三角
+        string res;
+        for (int l = 0; l < n; ++l) {
+            for (int i = 0; i + l < n; ++i) {
+                int j = i + l;
+                if (l == 0)
+                    dp[i][j] = true;
+                else if (l == 1)
+                    dp[i][j] = s[i] == s[j];
+                else
+                    dp[i][j] = dp[i+1][j-1] && s[i] == s[j];
 
-private:
-    int m,n;
-    int topK(vector<int>& nums1, vector<int>& nums2, int k) {
-        int l1 = 0, l2 = 0;
-        while (true) {
-            if (l1 == m)    // l1为空
-                return nums2[l2 + k - 1];
-            if (l2 == n)    // l2为空
-                return nums1[l1 + k - 1];
-            if (k == 1)     // 返回最小值
-                return min(nums1[l1], nums2[l2]);
-
-            int newl1 = min(l1 + k/2 - 1, m-1);     // 防止越界
-            int newl2 = min(l2 + k/2 - 1, n-1);
-            if (nums1[newl1] <= nums2[newl2]) {     // 判断大小, 剔除小的部分
-                k -= newl1 - l1 + 1;
-                l1 = newl1 + 1;
-            }
-            else {
-                k -= newl2 - l2 + 1;
-                l2 = newl2 + 1;
+                if (dp[i][j] && res.size() < j-i+1)
+                    res = s.substr(i, j-i+1);
             }
         }
+        return res;
     }
 };
 
+#elif 1
+// center expand
+class Solution {
+public:
+    string longestPalindrome(string s) {
+        string res;
+        int start = 0, end = 0;
+        for (int i = 0; i < s.size(); ++i) {
+            auto [l1, r1] = expand(s, i, i);        // C++ 17
+            auto [l2, r2] = expand(s, i, i+1);
+
+            if (r1 - l1 > end - start) {
+                start = l1;
+                end = r1;
+            }
+
+            if (r2 - l2 > end - start) {
+                start = l2;
+                end = r2;
+            }
+        }
+
+        return res = s.substr(start, end-start+1);
+    }
+
+private:
+    pair<int, int> expand(string &s, int left, int right) {
+        while (left >=0 && right < s.size() && s[left] == s[right]) {
+            --left;
+            ++right;
+        }
+        return {left+1, right-1};
+    }
+};
+
+#endif
 
 int main() {
-    vector<int> nums1 = {1,2};
-    vector<int> nums2 = {3,4};
-
     Solution solve;
-    cout << "mid = " << solve.findMedianSortedArrays(nums1, nums2) << endl;
+    cout << "str = " << solve.longestPalindrome("") << endl;
 
     cout << "\nFinish";
     return 0;
