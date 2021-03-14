@@ -1,61 +1,28 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-/// 6. Z 字形变换
-
-#if 0
-/// 模拟分行
 class Solution {
 public:
-    string convert(string s, int numRows) {
-        if (numRows < 2)
-            return s;
+    int reverse(int x) {
+        int res = 0;
+        while (x != 0) {
+            int pop = x % 10;
+            x /= 10;
 
-        vector<string> str(numRows);
-        int flag = 1, i = 0;
-        for (char c : s) {
-            str[i] += c;
-            i += flag;
-            if (i == (numRows - 1) || i == 0)
-                flag = -flag;
+            if (res > INT_MAX/10 || (res == INT_MAX / 10 && pop > 7))
+                return 0;
+            if (res < INT_MIN/10 || (res == INT_MIN / 10 && pop < -8))
+                return 0;
+
+            res = res * 10 + pop;
         }
-
-        string res;
-        for (string p : str)
-            res += p;
-
         return res;
     }
 };
-
-#elif 1
-/// 按行访问 (数学规律)
-class Solution {
-public:
-    string convert(string s, int numRows) {
-        if (numRows == 1)
-            return s;
-
-        string res;
-        int n = s.size();
-        int cycleLen = 2 * numRows - 2;
-        for (int i = 0; i < numRows; ++i) {
-            for (int j = 0; j + i < n; j += cycleLen) {
-                res += s[j+i];
-                if (i != 0 && i != numRows-1 && j + cycleLen - i < n)
-                    res += s[j + cycleLen - i];
-            }
-        }
-
-        return res;
-    }
-};
-
-#endif
 
 int main() {
     Solution solve;
-    cout << "str = " << solve.convert("PAY", 4) << endl;
+    cout << "x = " << solve.reverse(1534236469) << endl;
 
     cout << "\nFinish";
     return 0;
