@@ -1,66 +1,53 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-/// 5. 最长回文子串
+/// 6. Z 字形变换
 
 #if 0
-// dp
+/// 模拟分行
 class Solution {
 public:
-    string longestPalindrome(string s) {
-        int n = s.size();
-        vector<vector<bool>> dp(n, vector<bool>(n, false)); // 只利用上三角
-        string res;
-        for (int l = 0; l < n; ++l) {
-            for (int i = 0; i + l < n; ++i) {
-                int j = i + l;
-                if (l == 0)
-                    dp[i][j] = true;
-                else if (l == 1)
-                    dp[i][j] = s[i] == s[j];
-                else
-                    dp[i][j] = dp[i+1][j-1] && s[i] == s[j];
+    string convert(string s, int numRows) {
+        if (numRows < 2)
+            return s;
 
-                if (dp[i][j] && res.size() < j-i+1)
-                    res = s.substr(i, j-i+1);
-            }
+        vector<string> str(numRows);
+        int flag = 1, i = 0;
+        for (char c : s) {
+            str[i] += c;
+            i += flag;
+            if (i == (numRows - 1) || i == 0)
+                flag = -flag;
         }
+
+        string res;
+        for (string p : str)
+            res += p;
+
         return res;
     }
 };
 
 #elif 1
-// center expand
+/// 按行访问 (数学规律)
 class Solution {
 public:
-    string longestPalindrome(string s) {
+    string convert(string s, int numRows) {
+        if (numRows == 1)
+            return s;
+
         string res;
-        int start = 0, end = 0;
-        for (int i = 0; i < s.size(); ++i) {
-            auto [l1, r1] = expand(s, i, i);        // C++ 17
-            auto [l2, r2] = expand(s, i, i+1);
-
-            if (r1 - l1 > end - start) {
-                start = l1;
-                end = r1;
-            }
-
-            if (r2 - l2 > end - start) {
-                start = l2;
-                end = r2;
+        int n = s.size();
+        int cycleLen = 2 * numRows - 2;
+        for (int i = 0; i < numRows; ++i) {
+            for (int j = 0; j + i < n; j += cycleLen) {
+                res += s[j+i];
+                if (i != 0 && i != numRows-1 && j + cycleLen - i < n)
+                    res += s[j + cycleLen - i];
             }
         }
 
-        return res = s.substr(start, end-start+1);
-    }
-
-private:
-    pair<int, int> expand(string &s, int left, int right) {
-        while (left >=0 && right < s.size() && s[left] == s[right]) {
-            --left;
-            ++right;
-        }
-        return {left+1, right-1};
+        return res;
     }
 };
 
@@ -68,7 +55,7 @@ private:
 
 int main() {
     Solution solve;
-    cout << "str = " << solve.longestPalindrome("") << endl;
+    cout << "str = " << solve.convert("PAY", 4) << endl;
 
     cout << "\nFinish";
     return 0;
