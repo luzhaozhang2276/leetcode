@@ -1,37 +1,69 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-/// 8. 字符串转换整数 (atoi)
-// 法一: 状态自动机
-// 法二 : 逐个判断
+/// 9. 回文数
+
+#if 0
+/// 字符串
 class Solution {
 public:
-    int myAtoi(string s) {
-        // 忽略前导空格
-        s.erase(0, s.find_first_not_of(' '));
+    bool isPalindrome(int x) {
+        if (x < 0)
+            return false;
+        string s = to_string(x);
+        auto l = s.begin(), r = s.end() - 1;
+        while (l <= r)
+            if (*(l++) != *(r--))
+                return false;
 
-        int sign = 1, ans = 0, i = 0;
+        return true;
+    }
+};
+#elif 0
+/// 直接在数字上判断
+class Solution {
+public:
+    bool isPalindrome(int x) {
+        if (x < 0)
+            return false;
 
-        // while (s[i] == ' ')      // 忽略前导空格
-        //     ++i;
+        int div = 1;    // 位数
+        while (x / div >= 10)
+            div *= 10;
 
-        if (s[i] == '+' || s[i] == '-')         // 判断正负
-            sign = 1 - 2 * (s[i++] == '-');
-
-        while (s[i] >= '0' && s[i] <= '9') {    // 输入合法
-            if (ans > INT_MAX/10 || (ans == INT_MAX/10 && s[i] > '7'))  // 判断溢出
-                return sign == 1 ? INT_MAX : INT_MIN;
-
-            ans = ans * 10 + (s[i++] - '0');    // 不加括号会溢出
+        while (x > 0) {
+            if (x / div != x % 10)  // 判断首尾
+                return false;
+            x = (x % div) / 10;     // 去头去尾
+            div /= 100;
         }
-
-        return ans * sign;
+        return true;
     }
 };
 
+#elif 1
+/// 翻转数字
+class Solution {
+public:
+    bool isPalindrome(int x) {
+        if (x < 0 || (x % 10 == 0 && x != 0))
+            return false;
+
+        int reversenum = 0;
+        while (x > reversenum) {
+            reversenum = reversenum * 10 + x % 10;
+            x /= 10;
+        }
+
+        return x == reversenum || x == reversenum / 10;
+    }
+};
+
+#endif
+
 int main() {
     Solution solve;
-    cout << "x = " << solve.myAtoi("21474836460") << endl;
+    cout << "x = " << solve.isPalindrome(121) << endl;
 
     cout << "\nFinish";
     return 0;
