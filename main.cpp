@@ -1,69 +1,34 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-/// 9. 回文数
-
-#if 0
-/// 字符串
 class Solution {
 public:
-    bool isPalindrome(int x) {
-        if (x < 0)
-            return false;
-        string s = to_string(x);
-        auto l = s.begin(), r = s.end() - 1;
-        while (l <= r)
-            if (*(l++) != *(r--))
-                return false;
+    bool isMatch(string s, string p) {
+        int m = s.size() + 1, n = p.size() + 1;
+        vector<vector<bool>> dp(m, vector<bool>(n, false));
+        dp[0][0] = true;
+        for (int j = 2; j < n; j+=2)
+            dp[0][j] = dp[0][j - 2] && p[j - 1] == '*';
 
-        return true;
-    }
-};
-#elif 0
-/// 直接在数字上判断
-class Solution {
-public:
-    bool isPalindrome(int x) {
-        if (x < 0)
-            return false;
-
-        int div = 1;    // 位数
-        while (x / div >= 10)
-            div *= 10;
-
-        while (x > 0) {
-            if (x / div != x % 10)  // 判断首尾
-                return false;
-            x = (x % div) / 10;     // 去头去尾
-            div /= 100;
-        }
-        return true;
-    }
-};
-
-#elif 1
-/// 翻转数字
-class Solution {
-public:
-    bool isPalindrome(int x) {
-        if (x < 0 || (x % 10 == 0 && x != 0))
-            return false;
-
-        int reversenum = 0;
-        while (x > reversenum) {
-            reversenum = reversenum * 10 + x % 10;
-            x /= 10;
+        for (int i = 1; i < m; ++i) {
+            for (int j = 1; j < n; ++j) {
+                if (p[j-1] == '*')
+                    dp[i][j] = dp[i][j-2] || (dp[i-1][j] && (s[i-1] == p[j-2] || p[j-2] == '.'));
+                else
+                    dp[i][j] = dp[i-1][j-1] && (s[i-1] == p[j-1] || p[j-1] == '.');
+            }
         }
 
-        return x == reversenum || x == reversenum / 10;
+        return dp[m-1][n-1];
     }
 };
-
-#endif
 
 int main() {
+    string s = "aaab";
+    string p = "a*ab";
+
     Solution solve;
-    cout << "x = " << solve.isPalindrome(121) << endl;
+    cout << "res = " << solve.isMatch(s, p) << endl;
 
     cout << "\nFinish";
     return 0;
