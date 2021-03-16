@@ -1,34 +1,25 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+/// 11. 盛最多水的容器
+// 双指针
 class Solution {
 public:
-    bool isMatch(string s, string p) {
-        int m = s.size() + 1, n = p.size() + 1;
-        vector<vector<bool>> dp(m, vector<bool>(n, false));
-        dp[0][0] = true;
-        for (int j = 2; j < n; j+=2)
-            dp[0][j] = dp[0][j - 2] && p[j - 1] == '*';
-
-        for (int i = 1; i < m; ++i) {
-            for (int j = 1; j < n; ++j) {
-                if (p[j-1] == '*')
-                    dp[i][j] = dp[i][j-2] || (dp[i-1][j] && (s[i-1] == p[j-2] || p[j-2] == '.'));
-                else
-                    dp[i][j] = dp[i-1][j-1] && (s[i-1] == p[j-1] || p[j-1] == '.');
-            }
-        }
-
-        return dp[m-1][n-1];
+    int maxArea(vector<int>& height) {
+        int head = 0, tail = height.size() - 1, res = 0;
+        while (head < tail)
+            res = height[head] > height[tail] ?
+                  max(res, (tail-head) * height[tail--]):
+                  max(res, (tail-head) * height[head++]);
+        return res;
     }
 };
 
 int main() {
-    string s = "aaab";
-    string p = "a*ab";
+    vector<int> nums = {1,8,6,2,5,4,8,3,7};
 
     Solution solve;
-    cout << "res = " << solve.isMatch(s, p) << endl;
+    cout << "res = " << solve.maxArea(nums) << endl;
 
     cout << "\nFinish";
     return 0;
