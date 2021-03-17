@@ -2,68 +2,78 @@
 
 using namespace std;
 
-/// 20. 有效的括号
-#if 1
-// 栈 + 哈希表 + 剪枝(奇数false)
+struct ListNode {
+    int val;
+    ListNode *next;
+    ListNode() : val(0), next(nullptr) {}
+    ListNode(int x) : val(x), next(nullptr) {}
+    ListNode(int x, ListNode *next) : val(x), next(next) {}
+};
+
+ListNode* root (vector<int>& nums) {
+    auto *list = new ListNode(0);
+    ListNode *ptr = list;
+    for (auto &p:nums)
+    {
+        ptr->next = new ListNode(p);
+        ptr = ptr->next;
+    }
+
+    ptr = list->next;
+    delete list;
+    return ptr;
+}
+
+/// 21. 合并两个有序链表
+#if 0
+/// 循环
 class Solution {
 public:
-    bool isValid(string s) {
-        int n = s.size();
-        if ((n & 1) == 1)
-            return false;
-
-        // 此处 key 的选取与下边if判断有关;
-        // 若 key 为右括号,则if判断右括号; 反之亦然
-        unordered_map<char, char> pairs = {{')','('}, {'}','{'}, {']','['}};
-        stack<char> sta;    // 可初始化一个'?',且哈希表增加{'?','?'},则下边不需要判断栈空 (栈空变成 ? )
-
-        for (char c : s) {
-            if (pairs.count(c)) {           /// 右括号
-                if (sta.empty() || sta.top() != pairs[c])   // 栈为空 or 与栈顶的左括号不匹配 : false
-                    return false;
-                sta.pop();
-            } else
-                sta.push(c);                /// 左括号
+    ListNode* mergeTwoLists(ListNode* l1, ListNode* l2) {
+        ListNode dummy(0);      // 伪头结点
+        auto ptr = &dummy;
+        while (l1 && l2) {
+            ptr->next = (l1->val > l2->val) ? l2 : l1;
+            (l1->val > l2->val) ? (l2 = l2->next) : (l1 = l1->next);
+            ptr = ptr->next;
         }
+        ptr->next = l1 ? l1 : l2;
 
-        return sta.empty();
+        return dummy.next;
     }
 };
 
 #elif 1
-// 栈 + 结束字符(? or #)
+/// 递归
 class Solution {
 public:
-    bool isValid(string s) {
-        s.push_back('?');
-        stack<char> sta;
-        sta.push('?');
-        for (auto c : s) {
-            if (sta.empty() || (c == '(' || c == '{' || c == '[')) {
-                sta.push(c);
-                continue;
-            }
+    ListNode* mergeTwoLists(ListNode* l1, ListNode* l2) {
+        if (l1 == nullptr)
+            return l2;
+        if (l2 == nullptr)
+            return l1;
 
-            if (sta.top() == '?')
-                return c == '?';
-
-            if (sta.top() == '(' && c!=')' ||
-                sta.top() == '{' && c!='}' ||
-                sta.top() == '[' && c!=']')
-                return false;
-
-            sta.pop();
+        if (l1->val < l2->val) {
+            l1->next = mergeTwoLists(l1->next, l2);
+            return l1;
         }
-        return false;
+        else {
+            l2->next = mergeTwoLists(l1, l2->next);
+            return l2;
+        }
     }
 };
-
 #endif
 
+
 int main() {
+    vector<int> nums1 {1,2,4};
+    vector<int> nums2 {1,3,4};
+    auto ptr1 = root(nums1);
+    auto ptr2 = root(nums2);
 
     Solution solve;
-    cout << "res = " << solve.isValid("{[]}))") << endl;
+    auto ptr = solve.mergeTwoLists(ptr1, ptr2);
 
     cout << "\nFinish";
     return 0;
