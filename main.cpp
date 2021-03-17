@@ -1,39 +1,45 @@
 #include <bits/stdc++.h>
+
+#include <utility>
 using namespace std;
 
-/// 16. 最接近的三数之和
+/// 17. 电话号码的字母组合
+// 回溯法 (全排列可参照剑指offer38)
 class Solution {
 public:
-    int threeSumClosest(vector<int>& nums, int target) {
-        sort(nums.begin(), nums.end());
+    vector<string> letterCombinations(string digits) {
+        if (digits.empty())
+            return res;
 
-        int diff = INT_MAX;
-        for (int k = 0; k < nums.size() - 2; ++k) {
-            if (k > 0 && nums[k] == nums[k - 1])    // 剪枝 : 重复
-                continue;
-            int left = k + 1, right = nums.size() - 1;
-            while (left < right) {
-                int tmp = nums[k] + nums[left] + nums[right] - target;
-                diff = (abs(diff) > abs(tmp)) ? tmp : diff;
+        phoneMap = {{'2',"abc"}, {'3',"def"}, {'4',"ghi"}, {'5',"jkl"},
+                 {'6',"mno"}, {'7',"pqrs"}, {'8',"tuv"}, {'9',"wxyz"}};
 
-                if (tmp < 0)
-                    while (left < right && nums[left] == nums[++left]);
-                else if (tmp > 0)
-                    while (left < right && nums[right] == nums[--right]);
-                else
-                    return target;
-            }
+        string combine;
+        traceback(digits, combine, 0);
+        return res;
+    }
+
+private:
+    unordered_map<char, string> phoneMap;
+    vector<string> res;
+    void traceback(string s, string combine, int x) {
+        if (x == s.size()) {
+            res.push_back(combine);       // 添加排列方案
+            return;
         }
 
-        return target + diff;
+        for (char c : phoneMap[s[x]]) {
+            combine.push_back(c);
+            traceback(s, combine, x+1);          // 开始固定第 x+1 位
+            combine.pop_back();
+        }
     }
 };
 
 int main() {
-    vector<int> nums = {0,0,0};
-
     Solution solve;
-    cout << "res = " << solve.threeSumClosest(nums, 1) << endl;
+    for (auto s : solve.letterCombinations(""))
+        cout << s << ' ';
 
     cout << "\nFinish";
     return 0;
