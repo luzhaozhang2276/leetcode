@@ -2,65 +2,46 @@
 
 using namespace std;
 
-/// 18. 四数之和
-// 双指针 解法与三数之和相同
+struct ListNode {
+    int val;
+    ListNode *next;
+    ListNode() : val(0), next(nullptr) {}
+    ListNode(int x) : val(x), next(nullptr) {}
+    ListNode(int x, ListNode *next) : val(x), next(next) {}
+};
+
+/// 19. 删除链表的倒数第 N 个结点
 class Solution {
 public:
-    vector<vector<int>> fourSum(vector<int>& nums, int target) {
-        vector<vector<int>> quadruplets;
-        if (nums.size() < 4) {
-            return quadruplets;
+    ListNode* removeNthFromEnd(ListNode* head, int n) {
+        ListNode *dummy = new ListNode(0,head);
+        ListNode *fast = head, *slow = dummy;
+        while (n--)
+            fast = fast->next;
+        while (fast) {
+            fast = fast->next;
+            slow = slow->next;
         }
-        sort(nums.begin(), nums.end());
-        int length = nums.size();
-        for (int i = 0; i < length - 3; i++) {
-            if (i > 0 && nums[i] == nums[i - 1]) {
-                continue;
-            }
-            if (nums[i] + nums[i + 1] + nums[i + 2] + nums[i + 3] > target) {
-                break;
-            }
-            if (nums[i] + nums[length - 3] + nums[length - 2] + nums[length - 1] < target) {
-                continue;
-            }
-            for (int j = i + 1; j < length - 2; j++) {
-                if (j > i + 1 && nums[j] == nums[j - 1]) {
-                    continue;
-                }
-                if (nums[i] + nums[j] + nums[j + 1] + nums[j + 2] > target) {
-                    break;
-                }
-                if (nums[i] + nums[j] + nums[length - 2] + nums[length - 1] < target) {
-                    continue;
-                }
-                int left = j + 1, right = length - 1;
-                while (left < right) {
-                    int sum = nums[i] + nums[j] + nums[left] + nums[right];
-                    if (sum == target) {
-                        quadruplets.push_back({nums[i], nums[j], nums[left], nums[right]});
-                        while (left < right && nums[left] == nums[left + 1]) {
-                            left++;
-                        }
-                        left++;
-                        while (left < right && nums[right] == nums[right - 1]) {
-                            right--;
-                        }
-                        right--;
-                    } else if (sum < target) {
-                        left++;
-                    } else {
-                        right--;
-                    }
-                }
-            }
-        }
-        return quadruplets;
+
+        slow->next = slow->next->next;
+        ListNode *res = dummy->next;
+        delete dummy;
+        return res;
     }
 };
 
-
 int main() {
+    vector<int> nums {1,2,3,4,5};
+    ListNode head;
+    ListNode *ptr = &head;
+    for (auto num : nums) {
+        ptr->next = new ListNode(num);
+        ptr = ptr->next;
+    }
+    ptr = head.next;
+
     Solution solve;
+    auto p = solve.removeNthFromEnd(ptr, 2);
 
     cout << "\nFinish";
     return 0;
