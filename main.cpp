@@ -2,46 +2,68 @@
 
 using namespace std;
 
-struct ListNode {
-    int val;
-    ListNode *next;
-    ListNode() : val(0), next(nullptr) {}
-    ListNode(int x) : val(x), next(nullptr) {}
-    ListNode(int x, ListNode *next) : val(x), next(next) {}
-};
-
-/// 19. 删除链表的倒数第 N 个结点
+/// 20. 有效的括号
+#if 1
+// 栈 + 哈希表 + 剪枝(奇数false)
 class Solution {
 public:
-    ListNode* removeNthFromEnd(ListNode* head, int n) {
-        ListNode *dummy = new ListNode(0,head);
-        ListNode *fast = head, *slow = dummy;
-        while (n--)
-            fast = fast->next;
-        while (fast) {
-            fast = fast->next;
-            slow = slow->next;
+    bool isValid(string s) {
+        int n = s.size();
+        if ((n & 1) == 1)
+            return false;
+
+        // 此处 key 的选取与下边if判断有关;
+        // 若 key 为右括号,则if判断右括号; 反之亦然
+        unordered_map<char, char> pairs = {{')','('}, {'}','{'}, {']','['}};
+        stack<char> sta;    // 可初始化一个'?',且哈希表增加{'?','?'},则下边不需要判断栈空 (栈空变成 ? )
+
+        for (char c : s) {
+            if (pairs.count(c)) {           /// 右括号
+                if (sta.empty() || sta.top() != pairs[c])   // 栈为空 or 与栈顶的左括号不匹配 : false
+                    return false;
+                sta.pop();
+            } else
+                sta.push(c);                /// 左括号
         }
 
-        slow->next = slow->next->next;
-        ListNode *res = dummy->next;
-        delete dummy;
-        return res;
+        return sta.empty();
     }
 };
 
-int main() {
-    vector<int> nums {1,2,3,4,5};
-    ListNode head;
-    ListNode *ptr = &head;
-    for (auto num : nums) {
-        ptr->next = new ListNode(num);
-        ptr = ptr->next;
+#elif 1
+// 栈 + 结束字符(? or #)
+class Solution {
+public:
+    bool isValid(string s) {
+        s.push_back('?');
+        stack<char> sta;
+        sta.push('?');
+        for (auto c : s) {
+            if (sta.empty() || (c == '(' || c == '{' || c == '[')) {
+                sta.push(c);
+                continue;
+            }
+
+            if (sta.top() == '?')
+                return c == '?';
+
+            if (sta.top() == '(' && c!=')' ||
+                sta.top() == '{' && c!='}' ||
+                sta.top() == '[' && c!=']')
+                return false;
+
+            sta.pop();
+        }
+        return false;
     }
-    ptr = head.next;
+};
+
+#endif
+
+int main() {
 
     Solution solve;
-    auto p = solve.removeNthFromEnd(ptr, 2);
+    cout << "res = " << solve.isValid("{[]}))") << endl;
 
     cout << "\nFinish";
     return 0;
