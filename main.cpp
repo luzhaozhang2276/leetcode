@@ -2,100 +2,167 @@
 
 using namespace std;
 
-/// 22. 括号生成
-// https://leetcode-cn.com/problems/generate-parentheses/solution/di-gui-he-dong-tai-gui-hua-liang-chong-fang-shi-tu/
+struct ListNode {
+    int val;
+    ListNode *next;
+    ListNode() : val(0), next(nullptr) {}
+    ListNode(int x) : val(x), next(nullptr) {}
+    ListNode(int x, ListNode *next) : val(x), next(next) {}
+};
+
+ListNode* create (vector<int>& nums) {
+    auto *list = new ListNode(0);
+    ListNode *ptr = list;
+    for (auto &p:nums)
+    {
+        ptr->next = new ListNode(p);
+        ptr = ptr->next;
+    }
+
+    ptr = list->next;
+    delete list;
+    return ptr;
+}
+
+/// 23. 合并K个升序链表
+
 #if 0
-/// dp
-// 此处记录了dp值,无需重复计算,以空间换时间
+/// 两两合并(分治法)
 class Solution {
 public:
-    vector<string> generateParenthesis(int n) {
-        vector<vector<string>> dp(n+1);
-        dp[0] = {""};
+    ListNode* mergeKLists(vector<ListNode*>& lists) {
+        if (lists.empty())
+            return nullptr;
 
-        for (int i = 1; i <= n; ++i) {
-            vector<string> cur;
-            for (int m = 0; m < i; ++m) {
-                int k = i - 1 - m;
-                vector<string> str1 = dp[m];
-                vector<string> str2 = dp[k];
-
-                for (auto s1 : str1) {
-                    for (auto s2 : str2) {
-                        string s = "(" + s1 + ")" + s2;
-                        // string s;
-                        // s.append("("+s1);
-                        // s.append(")"+s2);
-                        cur.emplace_back(s);
-                    }
-                }
+        int n = lists.size();
+        while (n > 1) {
+            int idx = 0;
+            for (int i = 0; i < n; i += 2) {
+                if (i == n - 1)
+                    lists[idx++] = lists[i];
+                else
+                    lists[idx++] = merge2Lists(lists[i], lists[i+1]);
             }
-            dp[i] = cur;
+
+            n = idx;
         }
-        return dp[n];
+
+        return lists[0];
+    }
+
+private:
+    ListNode* merge2Lists(ListNode* l1, ListNode* l2) {
+        if (l1 == nullptr)
+            return l2;
+
+        if (l2 == nullptr)
+            return l1;
+
+        if (l1->val < l2->val) {
+            l1->next = merge2Lists(l1->next, l2);
+            return l1;
+        }
+        else {
+            l2->next = merge2Lists(l1, l2->next);
+            return l2;
+        }
     }
 };
+
 #elif 0
-/// dp + 递归
-// 此处递归时,进行了重复计算,并未保存dp的中间值
-// 时间换空间
+/// 两两合并(分治法+递归二分法)
 class Solution {
 public:
-    vector<string> generateParenthesis(int n) {
-        if (n == 0)
-            return {""};
+    ListNode* mergeKLists(vector<ListNode*>& lists) {
+        if (lists.empty())
+            return nullptr;
 
-        vector<string> res;
+        return merge(lists, 0, lists.size()-1);
+    }
 
-        for (int m = 0; m < n; ++m) {
-            int k = n - 1 - m;
-            vector<string> str1 = generateParenthesis(m);
-            vector<string> str2 = generateParenthesis(k);
+private:
+    ListNode* merge(vector<ListNode*>& lists, int lo, int hi) {
+        if (lo == hi)           // 终止条件
+            return lists[lo];
 
-            for (auto s1 : str1)
-                for (auto s2 : str2)
-                    res.emplace_back("(" + s1 + ")" + s2);
+        int mid = lo + (hi - lo) / 2;
+        auto l1 = merge(lists, lo, mid);
+        auto l2 = merge(lists, mid+1, hi);
+        return merge2Lists(l1, l2);
+    }
+
+    ListNode* merge2Lists(ListNode* l1, ListNode* l2) {
+        if (l1 == nullptr)
+            return l2;
+
+        if (l2 == nullptr)
+            return l1;
+
+        if (l1->val < l2->val) {
+            l1->next = merge2Lists(l1->next, l2);
+            return l1;
         }
-        return res;
+        else {
+            l2->next = merge2Lists(l1, l2->next);
+            return l2;
+        }
     }
 };
 
 #elif 1
-/// 递归
-// 终止条件: 左,右括号剩余数量均为0
-// 剪枝: 1. 左括号小于0; 2. 右括号大于左括号
-// 递归调用:
-//      1. 选择左括号 (本轮curStr+"(")
-//      2. 选择右括号 (本轮curStr+")")
+/// 小顶堆(优先队列)
 class Solution {
 public:
-    vector<string> generateParenthesis(int n) {
-        dfs(n, n, "");
-        return res;
-    }
+    // 运算符重载 < : 实现小顶堆
 
-private:
-    vector<string> res;
-    void dfs(int left, int right, string str) {
-        if (left == 0 && right == 0) {
-            res.emplace_back(str);
-            return;
+    struct status {
+        int val;
+        ListNode *ptr;
+        bool operator < (const status &rhs) const {
+            return rhs.val < val;
+        }
+    };
+
+    ListNode* mergeKLists(vector<ListNode*>& lists) {
+        priority_queue<status> heap;
+        for (auto node : lists) {
+            if (node)
+                heap.push({node->val, node});
         }
 
-        if (left < 0 || left > right)
-            return;
-
-        dfs(left-1, right, str+"(");
-        dfs(left, right-1, str+")");
+        ListNode dummy;
+        ListNode *tail = &dummy;
+        while (!heap.empty()) {
+            auto p = heap.top();
+            heap.pop();
+            tail->next = p.ptr;
+            tail = tail->next;
+            if (p.ptr->next)
+                heap.push({p.ptr->next->val, p.ptr->next});
+        }
+        return dummy.next;
     }
 };
 
 #endif
 
 int main() {
+    vector<ListNode*> lists;
+    vector<int> nums1 = {};
+    vector<int> nums2 = {-1,5,11};
+    vector<int> nums3 = {};
+    vector<int> nums4 = {6,10};
+    lists.emplace_back(create(nums1));
+    lists.emplace_back(create(nums2));
+    lists.emplace_back(create(nums3));
+    lists.emplace_back(create(nums4));
+
     Solution solve;
-    for (auto p : solve.generateParenthesis(3))
-        cout << p << endl;
+    auto p = solve.mergeKLists(lists);
+    while (p != nullptr) {
+        cout << p->val << " -> ";
+        p = p->next;
+    }
 
     cout << "\nFinish";
     return 0;
