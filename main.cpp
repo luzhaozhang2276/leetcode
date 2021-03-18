@@ -2,78 +2,100 @@
 
 using namespace std;
 
-struct ListNode {
-    int val;
-    ListNode *next;
-    ListNode() : val(0), next(nullptr) {}
-    ListNode(int x) : val(x), next(nullptr) {}
-    ListNode(int x, ListNode *next) : val(x), next(next) {}
-};
-
-ListNode* root (vector<int>& nums) {
-    auto *list = new ListNode(0);
-    ListNode *ptr = list;
-    for (auto &p:nums)
-    {
-        ptr->next = new ListNode(p);
-        ptr = ptr->next;
-    }
-
-    ptr = list->next;
-    delete list;
-    return ptr;
-}
-
-/// 21. 合并两个有序链表
+/// 22. 括号生成
+// https://leetcode-cn.com/problems/generate-parentheses/solution/di-gui-he-dong-tai-gui-hua-liang-chong-fang-shi-tu/
 #if 0
-/// 循环
+/// dp
+// 此处记录了dp值,无需重复计算,以空间换时间
 class Solution {
 public:
-    ListNode* mergeTwoLists(ListNode* l1, ListNode* l2) {
-        ListNode dummy(0);      // 伪头结点
-        auto ptr = &dummy;
-        while (l1 && l2) {
-            ptr->next = (l1->val > l2->val) ? l2 : l1;
-            (l1->val > l2->val) ? (l2 = l2->next) : (l1 = l1->next);
-            ptr = ptr->next;
-        }
-        ptr->next = l1 ? l1 : l2;
+    vector<string> generateParenthesis(int n) {
+        vector<vector<string>> dp(n+1);
+        dp[0] = {""};
 
-        return dummy.next;
+        for (int i = 1; i <= n; ++i) {
+            vector<string> cur;
+            for (int m = 0; m < i; ++m) {
+                int k = i - 1 - m;
+                vector<string> str1 = dp[m];
+                vector<string> str2 = dp[k];
+
+                for (auto s1 : str1) {
+                    for (auto s2 : str2) {
+                        string s = "(" + s1 + ")" + s2;
+                        // string s;
+                        // s.append("("+s1);
+                        // s.append(")"+s2);
+                        cur.emplace_back(s);
+                    }
+                }
+            }
+            dp[i] = cur;
+        }
+        return dp[n];
+    }
+};
+#elif 0
+/// dp + 递归
+// 此处递归时,进行了重复计算,并未保存dp的中间值
+// 时间换空间
+class Solution {
+public:
+    vector<string> generateParenthesis(int n) {
+        if (n == 0)
+            return {""};
+
+        vector<string> res;
+
+        for (int m = 0; m < n; ++m) {
+            int k = n - 1 - m;
+            vector<string> str1 = generateParenthesis(m);
+            vector<string> str2 = generateParenthesis(k);
+
+            for (auto s1 : str1)
+                for (auto s2 : str2)
+                    res.emplace_back("(" + s1 + ")" + s2);
+        }
+        return res;
     }
 };
 
 #elif 1
 /// 递归
+// 终止条件: 左,右括号剩余数量均为0
+// 剪枝: 1. 左括号小于0; 2. 右括号大于左括号
+// 递归调用:
+//      1. 选择左括号 (本轮curStr+"(")
+//      2. 选择右括号 (本轮curStr+")")
 class Solution {
 public:
-    ListNode* mergeTwoLists(ListNode* l1, ListNode* l2) {
-        if (l1 == nullptr)
-            return l2;
-        if (l2 == nullptr)
-            return l1;
+    vector<string> generateParenthesis(int n) {
+        dfs(n, n, "");
+        return res;
+    }
 
-        if (l1->val < l2->val) {
-            l1->next = mergeTwoLists(l1->next, l2);
-            return l1;
+private:
+    vector<string> res;
+    void dfs(int left, int right, string str) {
+        if (left == 0 && right == 0) {
+            res.emplace_back(str);
+            return;
         }
-        else {
-            l2->next = mergeTwoLists(l1, l2->next);
-            return l2;
-        }
+
+        if (left < 0 || left > right)
+            return;
+
+        dfs(left-1, right, str+"(");
+        dfs(left, right-1, str+")");
     }
 };
+
 #endif
 
-
 int main() {
-    vector<int> nums1 {1,2,4};
-    vector<int> nums2 {1,3,4};
-    auto ptr1 = root(nums1);
-    auto ptr2 = root(nums2);
-
     Solution solve;
-    auto ptr = solve.mergeTwoLists(ptr1, ptr2);
+    for (auto p : solve.generateParenthesis(3))
+        cout << p << endl;
 
     cout << "\nFinish";
     return 0;
