@@ -24,141 +24,51 @@ ListNode* create (vector<int>& nums) {
     return ptr;
 }
 
-/// 23. 合并K个升序链表
+/// 24. 两两交换链表中的节点
 
 #if 0
-/// 两两合并(分治法)
+/// 迭代
 class Solution {
 public:
-    ListNode* mergeKLists(vector<ListNode*>& lists) {
-        if (lists.empty())
-            return nullptr;
+    ListNode* swapPairs(ListNode* head) {
+        ListNode *dummyHead = new ListNode(0,head);
+        ListNode *ptr = dummyHead;
+        while (ptr->next != nullptr && ptr->next->next != nullptr) {
+            ListNode *p1 = ptr->next;
+            ListNode *p2 = ptr->next->next;
 
-        int n = lists.size();
-        while (n > 1) {
-            int idx = 0;
-            for (int i = 0; i < n; i += 2) {
-                if (i == n - 1)
-                    lists[idx++] = lists[i];
-                else
-                    lists[idx++] = merge2Lists(lists[i], lists[i+1]);
-            }
-
-            n = idx;
+            ptr->next = p2;
+            p1->next = p2->next;
+            p2->next = p1;
+            ptr = p1;
         }
-
-        return lists[0];
-    }
-
-private:
-    ListNode* merge2Lists(ListNode* l1, ListNode* l2) {
-        if (l1 == nullptr)
-            return l2;
-
-        if (l2 == nullptr)
-            return l1;
-
-        if (l1->val < l2->val) {
-            l1->next = merge2Lists(l1->next, l2);
-            return l1;
-        }
-        else {
-            l2->next = merge2Lists(l1, l2->next);
-            return l2;
-        }
-    }
-};
-
-#elif 0
-/// 两两合并(分治法+递归二分法)
-class Solution {
-public:
-    ListNode* mergeKLists(vector<ListNode*>& lists) {
-        if (lists.empty())
-            return nullptr;
-
-        return merge(lists, 0, lists.size()-1);
-    }
-
-private:
-    ListNode* merge(vector<ListNode*>& lists, int lo, int hi) {
-        if (lo == hi)           // 终止条件
-            return lists[lo];
-
-        int mid = lo + (hi - lo) / 2;
-        auto l1 = merge(lists, lo, mid);
-        auto l2 = merge(lists, mid+1, hi);
-        return merge2Lists(l1, l2);
-    }
-
-    ListNode* merge2Lists(ListNode* l1, ListNode* l2) {
-        if (l1 == nullptr)
-            return l2;
-
-        if (l2 == nullptr)
-            return l1;
-
-        if (l1->val < l2->val) {
-            l1->next = merge2Lists(l1->next, l2);
-            return l1;
-        }
-        else {
-            l2->next = merge2Lists(l1, l2->next);
-            return l2;
-        }
+        return dummyHead->next;
     }
 };
 
 #elif 1
-/// 小顶堆(优先队列)
+/// 递归
 class Solution {
 public:
-    // 运算符重载 < : 实现小顶堆
+    ListNode* swapPairs(ListNode* head) {
+        if (head == nullptr || head->next == nullptr)
+            return head;
 
-    struct status {
-        int val;
-        ListNode *ptr;
-        bool operator < (const status &rhs) const {
-            return rhs.val < val;
-        }
-    };
+        ListNode *ptr = head->next;
+        head->next = swapPairs(ptr->next);
+        ptr->next = head;
 
-    ListNode* mergeKLists(vector<ListNode*>& lists) {
-        priority_queue<status> heap;
-        for (auto node : lists) {
-            if (node)
-                heap.push({node->val, node});
-        }
-
-        ListNode dummy;
-        ListNode *tail = &dummy;
-        while (!heap.empty()) {
-            auto p = heap.top();
-            heap.pop();
-            tail->next = p.ptr;
-            tail = tail->next;
-            if (p.ptr->next)
-                heap.push({p.ptr->next->val, p.ptr->next});
-        }
-        return dummy.next;
+        return ptr;
     }
 };
 
 #endif
 
 int main() {
-    vector<ListNode*> lists;
-    vector<int> nums1 = {};
-    vector<int> nums2 = {-1,5,11};
-    vector<int> nums3 = {};
-    vector<int> nums4 = {6,10};
-    lists.emplace_back(create(nums1));
-    lists.emplace_back(create(nums2));
-    lists.emplace_back(create(nums3));
-    lists.emplace_back(create(nums4));
+    vector<int> nums = {1,2,3,4,5};
 
     Solution solve;
-    auto p = solve.mergeKLists(lists);
+    auto p = solve.swapPairs(create(nums));
     while (p != nullptr) {
         cout << p->val << " -> ";
         p = p->next;
