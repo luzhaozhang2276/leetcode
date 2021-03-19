@@ -6,94 +6,54 @@ struct ListNode {
     ListNode *next;
     ListNode() : val(0), next(nullptr) {}
     ListNode(int x) : val(x), next(nullptr) {}
+    ListNode(int x, ListNode *next) : val(x), next(next) {}
 };
 
-/// NC50. 链表中的节点每k个一组翻转
+ListNode* root (vector<int>& nums) {
+    auto *list = new ListNode(0);
+    ListNode *ptr = list;
+    for (auto &p:nums)
+    {
+        ptr->next = new ListNode(p);
+        ptr = ptr->next;
+    }
 
-#if 1
-/// 迭代
+    ptr = list->next;
+    delete list;
+    return ptr;
+}
+
+/// NC4. 判断链表中是否有环
+
+/// 快慢指针
 class Solution {
 public:
-    /**
-     *
-     * @param head ListNode类
-     * @param k int整型
-     * @return ListNode类
-     */
-    ListNode* reverseKGroup(ListNode* head, int k) {
-        // write code here
-        ListNode* dummyHead = new ListNode(0);
-        dummyHead->next = head;
+    bool hasCycle(ListNode *head) {
+        ListNode *slow = head, *fast = head;
+        while(fast != nullptr && fast->next != nullptr) {
+            slow = slow->next;
+            fast = fast->next->next;
 
-        ListNode* pre = dummyHead;
-        while (head != nullptr) {
-            // 寻找当前组k的尾节点
-            ListNode* tail = pre;
-            for (int i = 0; i < k; ++i) {
-                if (tail->next == nullptr)
-                    return dummyHead->next;
-                tail = tail->next;
-            }
-
-            // 反转操作
-            ListNode* nex = tail->next;
-            tie(head, tail) = ReverseLists(head, tail);    // 内部反转
-            pre->next = head;
-            tail->next = nex;
-            pre = tail;
-            head = tail->next;
+            if (fast == slow)
+                return true;
         }
-        return dummyHead->next;
-    }
-
-private:
-    pair<ListNode*, ListNode*> ReverseLists(ListNode* head, ListNode* tail) {
-        auto *prev = tail->next;
-        auto *ptr = head;
-        while (prev != tail) {
-            auto *nex = ptr->next;
-            ptr->next = prev;
-            prev = ptr;
-            ptr = nex;
-        }
-        return {tail, head};
+        return false;
     }
 };
-#elif 1
-/// 递归
-class Solution {
-public:
-    ListNode* reverse(ListNode* head,ListNode *tail) {  //反转链表模板，建议背熟
-        auto p1 = head, p2 = head->next;
 
-        while (p2 != tail) {
-            auto p3 = p2->next;
-            p2->next = p1;
-            p1 = p2, p2 = p3;
-        }
-
-        return p1;
-    }
-
-    ListNode* reverseKGroup(ListNode* head, int k) {
-        if (!head || !head->next) return head;
-
-        auto tail = head;
-        for (int i = 0; i < k; i ++ ) {                 //遍历k个节点
-            if (!tail) return head;                     //不足k个节点则不反转，直接返回
-            tail = tail->next;                          //使尾结点与头结点相距k
-        }
-
-        auto newHead = reverse(head, tail);             //反转长度为k的链表
-        head->next = reverseKGroup(tail, k);            //递归将下一段反转链表接到当前段的尾部
-
-        return newHead;
-    }
-};
-#endif
 
 int main() {
+    vector<int> nums {1,2,3,4,5};
+    auto ptr = root(nums);
+
+    ListNode* head = ptr;
+    while (ptr->next != nullptr)
+        ptr = ptr->next;
+
+//    ptr->next = head->next->next;
+
     Solution solve;
+    cout << "res : " << solve.hasCycle(head) << endl;
 
     cout << "\nFinish";
     return 0;
