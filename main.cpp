@@ -1,59 +1,52 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-struct ListNode {
-    int val;
-    ListNode *next;
-    ListNode() : val(0), next(nullptr) {}
-    ListNode(int x) : val(x), next(nullptr) {}
-    ListNode(int x, ListNode *next) : val(x), next(next) {}
-};
 
-ListNode* root (vector<int>& nums) {
-    auto *list = new ListNode(0);
-    ListNode *ptr = list;
-    for (auto &p:nums)
-    {
-        ptr->next = new ListNode(p);
-        ptr = ptr->next;
-    }
-
-    ptr = list->next;
-    delete list;
-    return ptr;
-}
-
-/// NC4. 判断链表中是否有环
-
-/// 快慢指针
+/// NC140. 排序
 class Solution {
 public:
-    bool hasCycle(ListNode *head) {
-        ListNode *slow = head, *fast = head;
-        while(fast != nullptr && fast->next != nullptr) {
-            slow = slow->next;
-            fast = fast->next->next;
+    /**
+     * 代码中的类名、方法名、参数名已经指定，请勿修改，直接返回方法规定的值即可
+     * 将给定数组排序
+     * @param arr int整型vector 待排序的数组
+     * @return int整型vector
+     */
+    vector<int> MySort(vector<int>& arr) {
+        // write code here
+        quickSort(arr, 0, arr.size()-1);
+        return arr;
+    }
 
-            if (fast == slow)
-                return true;
+private:
+    void quickSort(vector<int>& arr, int l, int r) {
+        if (l >= r)
+            return;
+
+        // partition 函数
+        int i = l, j = r;
+        while (i < j) {
+            while (i < j && arr[j] >= arr[l])
+                --j;
+            while (i < j && arr[i] <= arr[l])
+                ++i;
+
+            swap(arr[i], arr[j]);
         }
-        return false;
+        swap(arr[i], arr[l]);    // 交换哨兵位置
+
+        quickSort(arr, l, i-1);    // 递归左子数组
+        quickSort(arr, i+1, r);    // 递归右子数组
     }
 };
+
 
 
 int main() {
-    vector<int> nums {1,2,3,4,5};
-    auto ptr = root(nums);
-
-    ListNode* head = ptr;
-    while (ptr->next != nullptr)
-        ptr = ptr->next;
-
-//    ptr->next = head->next->next;
+    vector<int> nums = {5,2,3,1,4};
 
     Solution solve;
-    cout << "res : " << solve.hasCycle(head) << endl;
+    for (auto num : solve.MySort(nums))
+        cout << num << ' ';
 
     cout << "\nFinish";
     return 0;
