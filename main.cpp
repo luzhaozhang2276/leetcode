@@ -1,52 +1,114 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+/// NC93. 设计LRU缓存结构
 
-/// NC140. 排序
+struct DLinkedNode {
+    int key, value;
+    DLinkedNode *prev;
+    DLinkedNode *next;
+    DLinkedNode() : key(0), value(0), prev(nullptr), next(nullptr) {}
+    DLinkedNode(int _key, int _value) : key(_key), value(_value), prev(nullptr), next(nullptr) {}
+};
+
 class Solution {
+    unordered_map<int, DLinkedNode*> cache;
+    DLinkedNode* head;
+    DLinkedNode* tail;
+    int size, capacity;
 public:
     /**
-     * 代码中的类名、方法名、参数名已经指定，请勿修改，直接返回方法规定的值即可
-     * 将给定数组排序
-     * @param arr int整型vector 待排序的数组
+     * lru design
+     * @param operators int整型vector<vector<>> the ops
+     * @param k int整型 the k
      * @return int整型vector
      */
-    vector<int> MySort(vector<int>& arr) {
+    vector<int> LRU(vector<vector<int> >& operators, int k) {
         // write code here
-        quickSort(arr, 0, arr.size()-1);
-        return arr;
+        if (k < 1)
+            return {};
+
+        size = 0;
+        capacity = k;
+
+        head = new DLinkedNode();
+        tail = new DLinkedNode();
+        head->next = tail;
+        tail->prev = head;
+
+        if (operators.empty())
+            return{};
+
+        vector<int> res;
+        for (auto op : operators) {
+            if (op[0] == 1)
+                put(op[1], op[2]);
+            else if (op[0] == 2)
+                res.push_back(get(op[1]));
+        }
+
+        return res;
+    }
+
+    int get(int _key) {
+        if (!cache.count(_key))     // 不存在
+            return -1;
+        else {      // 存在
+            moveToHead(cache[_key]);
+            return cache[_key]->value;
+        }
+    }
+
+    void put(int _key, int _value) {
+        if (!cache.count(_key)) {   // 不存在
+            auto* ptr = new DLinkedNode(_key, _value);
+            addToHead(ptr);
+            cache[_key] = ptr;
+            ++size;
+            if (size > capacity) {
+                DLinkedNode* removed = removeTail();
+                cache.erase(removed->key);
+                delete removed;
+                --size;
+            }
+        }
+        else {      // 存在
+            cache[_key]->value = _value;
+            moveToHead(cache[_key]);
+        }
     }
 
 private:
-    void quickSort(vector<int>& arr, int l, int r) {
-        if (l >= r)
-            return;
+    void addToHead(DLinkedNode* node) {
+        auto ptr = head->next;
+        head->next = node;
+        node->prev = head;
+        node->next = ptr;
+        ptr->prev = node;
+    }
 
-        // partition 函数
-        int i = l, j = r;
-        while (i < j) {
-            while (i < j && arr[j] >= arr[l])
-                --j;
-            while (i < j && arr[i] <= arr[l])
-                ++i;
+    void removeNode(DLinkedNode* node) {
+        node->prev->next = node->next;
+        node->next->prev = node->prev;
+    }
 
-            swap(arr[i], arr[j]);
-        }
-        swap(arr[i], arr[l]);    // 交换哨兵位置
+    void moveToHead(DLinkedNode* node) {
+        removeNode(node);
+        addToHead(node);
+    }
 
-        quickSort(arr, l, i-1);    // 递归左子数组
-        quickSort(arr, i+1, r);    // 递归右子数组
+    DLinkedNode* removeTail() {
+        DLinkedNode* node = tail->prev;
+        removeNode(node);
+        return node;
     }
 };
 
 
 
-int main() {
-    vector<int> nums = {5,2,3,1,4};
 
-    Solution solve;
-    for (auto num : solve.MySort(nums))
-        cout << num << ' ';
+int main() {
+
 
     cout << "\nFinish";
     return 0;
