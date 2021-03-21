@@ -1,95 +1,68 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-/// 146. LRU 缓存机制
 
-struct DLinkedNode {
-    int key, value;
-    DLinkedNode *prev;
-    DLinkedNode *next;
-    DLinkedNode() : key(0), value(0), prev(nullptr), next(nullptr) {}
-    DLinkedNode(int _key, int _value) : key(_key), value(_value), prev(nullptr), next(nullptr) {}
+
+struct ListNode {
+    int val;
+    ListNode *next;
+    ListNode() : val(0), next(nullptr) {}
+    ListNode(int x) : val(x), next(nullptr) {}
+    ListNode(int x, ListNode *next) : val(x), next(next) {}
 };
 
-class LRUCache {
-    unordered_map<int, DLinkedNode*> cache;
-    DLinkedNode* head;
-    DLinkedNode* tail;
-    int size, capacity;
+/// 206. 反转链表
+#if 0
+/// 递归
+class Solution {
 public:
-    LRUCache(int _capacity) : size(0), capacity(_capacity) {
-        head = new DLinkedNode();
-        tail = new DLinkedNode();
-        head->next = tail;
-        tail->prev = head;
-    }
+    ListNode* reverseList(ListNode* head) {
+        // 终止条件
+        if (head == nullptr || head->next == nullptr)
+            return head;
 
-    int get(int _key) {
-        if (!cache.count(_key))     // 不存在
-            return -1;
-        else {      // 存在
-            moveToHead(cache[_key]);
-            return cache[_key]->value;
-        }
-    }
+        ListNode* nex = reverseList(head->next);
+        head->next->next = head;    // 分解成单次处理
+        head->next = nullptr;       // 避免回环
 
-    void put(int _key, int _value) {
-        if (!cache.count(_key)) {   // 不存在
-            auto* ptr = new DLinkedNode(_key, _value);
-            addToHead(ptr);
-            cache[_key] = ptr;
-            ++size;
-            if (size > capacity) {
-                DLinkedNode* removed = removeTail();
-                cache.erase(removed->key);
-                delete removed;
-                --size;
-            }
-        }
-        else {      // 存在
-            cache[_key]->value = _value;
-            moveToHead(cache[_key]);
-        }
-    }
-
-private:
-    void addToHead(DLinkedNode* node) {
-        auto ptr = head->next;
-        head->next = node;
-        node->prev = head;
-        node->next = ptr;
-        ptr->prev = node;
-    }
-
-    void removeNode(DLinkedNode* node) {
-        node->prev->next = node->next;
-        node->next->prev = node->prev;
-    }
-
-    void moveToHead(DLinkedNode* node) {
-        removeNode(node);
-        addToHead(node);
-    }
-
-    DLinkedNode* removeTail() {
-        DLinkedNode* node = tail->prev;
-        removeNode(node);
-        return node;
+        return nex;     // nex 始终不变
     }
 };
 
-/**
- * Your LRUCache object will be instantiated and called as such:
- * LRUCache* obj = new LRUCache(capacity);
- * int param_1 = obj->get(key);
- * obj->put(key,value);
- */
+#elif 1
+/// 迭代
+class Solution {
+public:
+    ListNode* reverseList(ListNode* head) {
+        ListNode *cur = head, *prev = nullptr;
+        while (cur != nullptr) {
+            auto tmp = cur->next;
+            cur->next = prev;
+            prev = cur;
+            cur = tmp;
+        }
 
+        return prev;
+    }
+};
 
-
+#endif
 
 int main() {
+    vector<int> nums = {1,2,3,4,5};
+    ListNode dummy(0);
+    ListNode *ptr = &dummy;
+    for (auto num : nums) {
+        ptr->next = new ListNode(num);
+        ptr = ptr->next;
+    }
 
+    Solution solve;
+    auto p = solve.reverseList(dummy.next);
+    while (p != nullptr) {
+        cout << p->val << ' ';
+        p = p->next;
+    }
 
     cout << "\nFinish";
     return 0;
