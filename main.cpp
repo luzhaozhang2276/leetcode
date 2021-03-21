@@ -11,19 +11,28 @@ struct ListNode {
     ListNode(int x, ListNode *next) : val(x), next(next) {}
 };
 
-/// 141. 环形链表
+/// 142. 环形链表 II
 /// 快慢双指针
 class Solution {
 public:
-    bool hasCycle(ListNode *head) {
+    ListNode *detectCycle(ListNode *head) {
         ListNode *slow = head, *fast = head;
-        while (fast != nullptr && fast->next != nullptr) {
+        while (true) {
+            if (fast == nullptr || fast->next == nullptr)
+                return nullptr;
             slow = slow->next;
             fast = fast->next->next;
             if (slow == fast)
-                return true;
+                break;
         }
-        return false;
+
+        fast = head;
+        while (slow != fast) {
+            slow = slow->next;
+            fast = fast->next;
+        }
+
+        return fast;
     }
 };
 
