@@ -45,7 +45,6 @@ public:
         return prev;
     }
 };
-
 #endif
 
 int main() {
