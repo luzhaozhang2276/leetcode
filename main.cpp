@@ -1,38 +1,28 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-
-
-struct ListNode {
+struct TreeNode {
     int val;
-    ListNode *next;
-    ListNode() : val(0), next(nullptr) {}
-    ListNode(int x) : val(x), next(nullptr) {}
-    ListNode(int x, ListNode *next) : val(x), next(next) {}
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode() : val(0), left(nullptr), right(nullptr) {}
+    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+    TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
 };
 
-/// 142. 环形链表 II
-/// 快慢双指针
+/// 94. 二叉树的中序遍历
 class Solution {
+    vector<int> res;
 public:
-    ListNode *detectCycle(ListNode *head) {
-        ListNode *slow = head, *fast = head;
-        while (true) {
-            if (fast == nullptr || fast->next == nullptr)
-                return nullptr;
-            slow = slow->next;
-            fast = fast->next->next;
-            if (slow == fast)
-                break;
-        }
+    vector<int> inorderTraversal(TreeNode* root) {
+        if (root == nullptr)
+            return {};
 
-        fast = head;
-        while (slow != fast) {
-            slow = slow->next;
-            fast = fast->next;
-        }
+        inorderTraversal(root->left);
+        res.push_back(root->val);
+        inorderTraversal(root->right);
 
-        return fast;
+        return res;
     }
 };
 
