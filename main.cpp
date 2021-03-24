@@ -1,73 +1,29 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-/// 剑指 Offer 42. 连续子数组的最大和
+/// 剑指 Offer 48. 最长不含重复字符的子字符串
 
-#if 0
-// 双指针
+/// 双指针
 class Solution {
 public:
-    int maxSubArray(vector<int>& nums) {
-        int curr = INT_MIN, res = INT_MIN;
+    int lengthOfLongestSubstring(string s) {
+        unordered_map<char, int> hash;
+        int i = -1, res = 0;
+        for (int j = 0; j < s.size(); ++j) {
+            if (hash.find(s[j]) != hash.end())    // 重复, 更新左指针
+                i = max(hash[s[j]], i);
 
-//        for (int i = 0; i < nums.size(); ++i) {
-//            if (curr < 0)
-//                curr = max(curr, nums[i]);
-//            else
-//                curr += nums[i];
-//
-//            res = max(curr, res);
-//        }
-
-        for (auto num : nums) {
-            curr = (curr < 0) ? max(curr, num) : curr + num;
-            res = max(curr, res);
-        }
-
-        return res;
-    }
-};
-#elif 1
-/// DP 解法
-class Solution {
-public:
-    int maxSubArray(vector<int>& nums) {
-        int res = nums[0];
-        for (int i = 1; i < nums.size(); ++i) {
-            if (nums[i-1] > 0)
-                nums[i] = nums[i-1] + nums[i];
-            res = max(res,nums[i]);
+            hash[s[j]] = j;
+            res = max(res, j-i);
         }
         return res;
     }
 };
-#elif 1
-// DP
-class Solution {
-public:
-    int maxSubArray(vector<int>& nums) {
-        int res = nums[0];
-        vector<int> dp(nums.size(), nums[0]);
-        for (int i = 1; i < nums.size(); ++i) {
-            if (dp[i-1] <= 0)
-                dp[i] = nums[i];
-            else
-                dp[i] = dp[i-1] + nums[i];
 
-            res = max(res, dp[i]);
-
-        }
-
-        return res;
-    }
-};
-#endif
 
 
 int main() {
-    vector<int> nums = {-2,1,-3,4,-1,2,1,-5,4};
     Solution solve;
-    cout << "res = " << solve.maxSubArray(nums) << endl;
 
     cout << "\nFinish";
     return 0;
