@@ -1,8 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-/// 剑指 Offer 68 - II. 二叉树的最近公共祖先
-
 struct TreeNode {
     int val;
     TreeNode *left;
@@ -10,35 +8,80 @@ struct TreeNode {
     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
 };
 
+/// 剑指 Offer 26. 树的子结构
 
-/// 递归
 class Solution {
 public:
-    TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
-        // 终止条件: 叶子节点 or 找到 p q
-        if (root == nullptr || root == p || root == q)
-            return root;
+    bool isSubStructure(TreeNode* A, TreeNode* B) {
+        /// 外层递归: 先序遍历
+        if (A == nullptr || B == nullptr)   // 终止条件
+            return false;
 
-        // 递归调用左右节点
-        auto left = lowestCommonAncestor(root->left, p, q);
-        auto right = lowestCommonAncestor(root->right, p, q);
+        // 当前 || A左子树 || A右子树
+        return recursion(A, B) || isSubStructure(A->left, B) || isSubStructure(A->right, B);
+    }
 
-        // if (left == nullptr && right == nullptr)         // 均为空
-        //     return nullptr;
-        if (left == nullptr)        // 左空右不空
-            return right;
-        if (right == nullptr)   // 左非空右空
-            return left;
+    bool recursion(TreeNode* A, TreeNode* B)
+    {
+        /// 内层递归: 根节点相等 && 左子树相等 && 右子树相等
+        if (B == nullptr)
+            return true;
 
-        return root;                // 均非空, 即p = q = root
+        if (A == nullptr || A->val != B->val)
+            return false;
+
+        return recursion(A->left, B->left) && recursion(A->right, B->right);
     }
 };
 
+/// 生成二叉树: 使用队列(先进先出)
+TreeNode* createTree(vector<int> &number)
+{
+    if (number.empty())
+        return nullptr;
 
+    auto ptr = number.begin();
+
+    TreeNode* root = new TreeNode(*ptr);
+    queue<TreeNode*> nodeQueue;
+    nodeQueue.push(root);
+    while (ptr != number.end())
+    {
+        TreeNode* node = nodeQueue.front();
+        nodeQueue.pop();
+
+        ptr++;
+        if(ptr != number.end()) {
+            node->left = new TreeNode(*ptr);
+            nodeQueue.push(node->left);
+        }
+
+        if(ptr == number.end())
+            break;
+
+        ptr++;
+        if(ptr != number.end())
+        {
+            node->right = new TreeNode(*ptr);
+            nodeQueue.push(node->right);
+        }
+    }
+
+    return root;
+}
 
 int main() {
-    Solution solve;
+    /// 数据生成 ptr
+    vector<int> A = {1,2,3,4};
+    vector<int> B = {3};
 
-    cout << "\nFinish";
+    TreeNode* treeA = createTree(A);
+    TreeNode* treeB = createTree(B);
+
+    Solution solve;
+    string result = solve.isSubStructure(treeA, treeB) ? "True" : "False";
+    cout << "result: " << result << endl;
+
+    cout << "\nFinish" << endl;
     return 0;
 }
