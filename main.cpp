@@ -1,86 +1,44 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
-};
+/// 200. 岛屿数量
 
-/// 剑指 Offer 26. 树的子结构
-
+/// DFS
+// 外层:遍历表格,对‘1'进行DFS
+// 内层:DFS遍历,对当前层置0
 class Solution {
 public:
-    bool isSubStructure(TreeNode* A, TreeNode* B) {
-        /// 外层递归: 先序遍历
-        if (A == nullptr || B == nullptr)   // 终止条件
-            return false;
+    int numIslands(vector<vector<char>>& grid) {
+        int count = 0;
+        for (int i = 0; i < grid.size(); ++i) {
+            for (int j = 0; j < grid[0].size(); ++j) {
+                if (grid[i][j] == '1') {
+                    dfs(grid, i, j);
+                    count++;
+                }
+            }
+        }
 
-        // 当前 || A左子树 || A右子树
-        return recursion(A, B) || isSubStructure(A->left, B) || isSubStructure(A->right, B);
+        return count;
     }
 
-    bool recursion(TreeNode* A, TreeNode* B)
-    {
-        /// 内层递归: 根节点相等 && 左子树相等 && 右子树相等
-        if (B == nullptr)
-            return true;
+private:
+    void dfs(vector<vector<char>>& grid, int i, int j) {
+        if (i < 0 || j < 0 || i >= grid.size() || j >= grid[0].size() || grid[i][j] == '0')
+            return;
 
-        if (A == nullptr || A->val != B->val)
-            return false;
-
-        return recursion(A->left, B->left) && recursion(A->right, B->right);
+        grid[i][j] = '0';
+        dfs(grid, i-1, j);
+        dfs(grid, i+1, j);
+        dfs(grid, i, j-1);
+        dfs(grid, i, j+1);
     }
 };
-
-/// 生成二叉树: 使用队列(先进先出)
-TreeNode* createTree(vector<int> &number)
-{
-    if (number.empty())
-        return nullptr;
-
-    auto ptr = number.begin();
-
-    TreeNode* root = new TreeNode(*ptr);
-    queue<TreeNode*> nodeQueue;
-    nodeQueue.push(root);
-    while (ptr != number.end())
-    {
-        TreeNode* node = nodeQueue.front();
-        nodeQueue.pop();
-
-        ptr++;
-        if(ptr != number.end()) {
-            node->left = new TreeNode(*ptr);
-            nodeQueue.push(node->left);
-        }
-
-        if(ptr == number.end())
-            break;
-
-        ptr++;
-        if(ptr != number.end())
-        {
-            node->right = new TreeNode(*ptr);
-            nodeQueue.push(node->right);
-        }
-    }
-
-    return root;
-}
+/// BFS
+// 内层使用queue进行BFS遍历
 
 int main() {
-    /// 数据生成 ptr
-    vector<int> A = {1,2,3,4};
-    vector<int> B = {3};
-
-    TreeNode* treeA = createTree(A);
-    TreeNode* treeB = createTree(B);
-
     Solution solve;
-    string result = solve.isSubStructure(treeA, treeB) ? "True" : "False";
-    cout << "result: " << result << endl;
 
     cout << "\nFinish" << endl;
     return 0;
