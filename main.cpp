@@ -1,29 +1,37 @@
 #include <bits/stdc++.h>
+
 using namespace std;
 
-/// 20. 有效的括号
 class Solution {
 public:
-    bool isValid(string s) {
-        unordered_map<char, char> hash = {{'[',']'}, {'(',')'}, {'{','}'}, {'?', '?'}};
-        stack<char> symbol;
-        for (auto c : s) {
-            if (hash.find(c) != hash.end())   // found left
-                symbol.push(c);
-            else {  // found right
-                if (symbol.empty() || hash[symbol.top()] != c)     // unmatched
-                    return false;
-                symbol.pop();
-            }
+    void nextPermutation(vector<int>& nums) {
+        if (nums.size() == 1)
+            return;
+
+        int l = nums.size() - 2;
+        int r = nums.size() - 1;
+        while (l >= 0 && nums[l] >= nums[l+1])  // 从后往前找到首个递减的数
+            --l;
+
+        if (l >= 0) {
+            while (r >=0 && nums[r] <= nums[l]) // 在l后找到首个大的数
+                --r;
+            swap(nums[l], nums[r]);
         }
 
-        return symbol.empty();
+        sort(nums.begin() + l + 1, nums.end()); // 后边元素有序(l=-1,则全部重排)
     }
 };
 
 int main() {
-    Solution solve;
+    vector<int> nums = {1,2,3};
 
-    cout << "\nFinish" << endl;
+    Solution solve;
+    solve.nextPermutation(nums);
+
+    for (const auto &n : nums)
+        cout << n << ' ';
+
+    cout << "\nFinish";
     return 0;
 }
