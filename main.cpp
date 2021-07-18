@@ -2,48 +2,44 @@
 
 using namespace std;
 
+/// 39. 组合总和
+/// 回溯+剪枝
 class Solution {
-public:
-    /// 查找第一个比target大的数
-    int findFirst(vector<int>& nums, int target) {
-        if (nums.empty() || target > nums[nums.size()-1])
-            return -1;
+    vector<vector<int>> res;
+    vector<int> combine;
 
-        int l = 0, r = nums.size() - 1, mid;
-        while (l <= r) {
-            mid = (l + r) / 2;
-            if (nums[mid] >= target)
-                r = mid - 1;
-            else
-                l = mid + 1;
+    void dfs(vector<int>& candidates, int target, int idx) {
+        if (idx == candidates.size()) {
+            if (target == 0)
+                res.push_back(combine);
+            return;
         }
-        return l;
+
+        dfs(candidates, target, idx+1);
+
+        if (target - candidates[idx] >= 0) {
+            combine.push_back(candidates[idx]);
+            dfs(candidates, target-candidates[idx], idx);   // 可重复 idx， 不可重复 idx+1
+            combine.pop_back();
+        }
     }
 
-    vector<int> searchRange(vector<int>& nums, int target) {
-        int l = findFirst(nums, target);
-        int r = findFirst(nums, target + 1);
-
-        if (l == -1 || nums[l] != target)   // 超出范围 or 不存在target
-            return {-1, -1};
-        if (r == -1)        // 最后一个数为target
-            r = nums.size();
-
-        return {l, r-1};
+public:
+    vector<vector<int>> combinationSum(vector<int>& candidates, int target) {
+        dfs(candidates, target, 0);
+        return res;
     }
 };
 
 int main() {
-    vector<int> nums = {5,7,7,8,8,10};
-//    vector<int> nums = {1};
+    vector<int> nums = {2, 3, 5, 7};
 
     Solution solve;
-
-    cout << solve.findFirst(nums, 11) <<endl;
-
-    for (const auto &p : solve.searchRange(nums, 1))
-        cout << p << ' ';
-
+    for (const auto &ps :solve.combinationSum(nums, 7)) {
+        for (const auto &num : ps)
+            cout << num << ' ';
+        cout <<endl;
+    }
 
     cout << "\nFinish";
     return 0;
