@@ -2,37 +2,30 @@
 
 using namespace std;
 
-/// sort + hashmap
+/// 55. 跳跃游戏
 class Solution {
 public:
-    vector<vector<string>> groupAnagrams(vector<string>& strs) {
-        unordered_map<string, vector<string>> map;
-
-        for (string &s : strs) {
-            string key = s;
-            sort(key.begin(), key.end());
-            // cout << key << " , " << s << endl;
-            map[key].emplace_back(s);
+    bool canJump(vector<int>& nums) {
+        int end = 0;
+        for (int i = 0; i < nums.size(); ++i) {
+            if (end < i)
+                return false;
+            end = max(end, i + nums[i]);
+            if (end >= nums.size() - 1)
+                return true;
         }
 
-        vector<vector<string>> res;
-        for (auto &p : map) {
-            res.emplace_back(p.second);
-        }
-
-        return res;
+        return end >= nums.size();
     }
 };
 
 int main() {
-    vector<string> strs = {"eat", "tea", "tan", "ate", "nat", "bat"};
+    vector<int> nums = {3,2,1,0,4};
 
     Solution solve;
-    for (const auto &p : solve.groupAnagrams(strs)) {
-        for (const auto &s : p)
-            cout << s << ' ';
-        cout <<endl;
-    }
+    string res;
+    res = solve.canJump(nums) ? "true" : "false";
+    cout << "res = " << res << endl;
 
     cout << "\nFinish";
     return 0;
