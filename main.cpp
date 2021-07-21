@@ -2,34 +2,24 @@
 
 using namespace std;
 
-/// 56. 合并区间
+/// 62. 不同路径  二维DP
 class Solution {
 public:
-    vector<vector<int>> merge(vector<vector<int>>& intervals) {
-        sort(intervals.begin(), intervals.end());
-
-        vector<vector<int>> res;
-        res.push_back(intervals[0]);
-        for (int i = 1; i < intervals.size(); ++i) {
-            int L = intervals[i][0], R = intervals[i][1];
-            if (L <= res.back()[1])
-                res.back()[1] = max(res.back()[1], R);
-            else
-                res.push_back(intervals[i]);
+    int uniquePaths(int m, int n) {
+        vector<vector<int>> dp(m, vector<int>(n, 1));
+        for (int i = 1; i < m; ++i) {
+            for (int j = 1; j < n; ++j) {
+                dp[i][j] = dp[i-1][j] + dp[i][j-1];
+            }
         }
 
-        return res;
+        return dp[m-1][n-1];
     }
 };
 
 int main() {
-    vector<vector<int>> intervals;
-    // intervals = {{1,3}, {2,6}, {8,10}, {15,18}};
-    intervals = {{1,3}, {8,10}, {2,6}, {15,18}};
-
     Solution solve;
-    for (const auto &nums : solve.merge(intervals))
-        cout << nums[0] << ',' << nums[1] << endl;
+    cout << "res = " << solve.uniquePaths(7, 3) <<endl;
 
     cout << "\nFinish";
     return 0;
