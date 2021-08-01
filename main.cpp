@@ -2,41 +2,63 @@
 
 using namespace std;
 
-/// 78. 子集
-// 回溯法
+/// 79. 单词搜索
+// 回溯法  剪枝
 class Solution {
-    vector<vector<int>> res;
+    string word_;
+    int n, m;
+    vector<pair<int, int>> dir = {{-1,0}, {1, 0}, {0, -1}, {0, 1}};
+    bool check(vector<vector<char>>& board, int i, int j, int k) {
+        if (board[i][j] != word_[k])
+            return false;
+        else if (k == word_.size() - 1)
+            return true;
 
-    void backtrack(vector<int>& nums, vector<int>& path, int idx) {
-        res.push_back(path);
-        for (int i = idx; i < nums.size(); ++i) {
-            //if (i > idx && nums[i] == nums[i-1])
-            //    continue;
-            path.push_back(nums[i]);
-            backtrack(nums, path, i+1);
-            path.pop_back();
+        board[i][j] = '0';
+        int bFind = false;
+        for (const auto &p : dir) {
+            int ni = i + p.first, nj = j + p.second;
+            if (ni >= 0 && ni < n && nj >= 0 && nj < m) {
+                if (check(board, ni, nj, k + 1)) {
+                    bFind = true;
+                    break;
+                }
+            }
         }
-    }
-public:
-    vector<vector<int>> subsets(vector<int>& nums) {
-        vector<int> path;
-        sort(nums.begin(), nums.end());
-        backtrack(nums, path, 0);
 
-        return res;
+        board[i][j] = word_[k];
+        return bFind;
+    }
+
+public:
+    bool exist(vector<vector<char>>& board, string word) {
+        word_ = std::move(word);
+        n = board.size();
+        m = board[0].size();
+
+        for (int i = 0; i < n; ++i) {
+            for (int j = 0; j < m; ++j) {
+                if (check(board, i, j, 0))
+                    return true;
+            }
+        }
+        return false;
     }
 };
 
 
 int main() {
-    vector<int> nums = {1,2,3};
+    vector<vector<char>> board = {
+            {'A', 'B', 'C', 'E'},
+            {'S', 'F', 'C', 'S'},
+            {'A', 'D', 'E', 'E'}
+    };
+
+    string word = "ABCCED";
 
     Solution solve;
-    for (const auto &ps : solve.subsets(nums)) {
-        for (const auto &p : ps)
-            cout << p << ' ';
-        cout << endl;
-    }
+    cout << "res = " << solve.exist(board, word) << endl;
+
 
     cout << "\nFinish";
     return 0;
