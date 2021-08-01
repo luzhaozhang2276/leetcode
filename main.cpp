@@ -2,59 +2,41 @@
 
 using namespace std;
 
-/// 76. 最小覆盖子串
-// 滑动窗口 + 哈希表
+/// 78. 子集
+// 回溯法
 class Solution {
-    unordered_map<char, int> win, ori;
+    vector<vector<int>> res;
 
-    bool check() {
-        for (const auto &p : ori) {
-            if (win[p.first] < p.second)
-                return false;
+    void backtrack(vector<int>& nums, vector<int>& path, int idx) {
+        res.push_back(path);
+        for (int i = idx; i < nums.size(); ++i) {
+            //if (i > idx && nums[i] == nums[i-1])
+            //    continue;
+            path.push_back(nums[i]);
+            backtrack(nums, path, i+1);
+            path.pop_back();
         }
-        return true;
     }
-
 public:
-    string minWindow(string s, string t) {
-        // initial
-        for (const auto &p : t)
-            ++ori[p];
+    vector<vector<int>> subsets(vector<int>& nums) {
+        vector<int> path;
+        sort(nums.begin(), nums.end());
+        backtrack(nums, path, 0);
 
-        int l = 0, r = -1, start = -1, len = INT_MAX;
-        int size = s.size();
-        while (r < size) {
-            // 右移
-            if (ori.find(s[++r]) != ori.end())
-                ++win[s[r]];
-
-            // 左移
-            while (l <= r && check()) {
-                // update
-                if (r - l + 1 < len) {
-                    len = r - l + 1;
-                    start = l;
-                }
-
-                // remove l in win
-                if (ori.find(s[l]) != ori.end())
-                    --win[s[l]];
-
-                ++l;
-            }
-        }
-
-        return start == -1 ? string(): s.substr(start, len);
+        return res;
     }
 };
 
 
 int main() {
-    string s = "cabwefgewcwaefgcf";
-    string t = "cae";
+    vector<int> nums = {1,2,3};
 
     Solution solve;
-    cout <<"res = " << solve.minWindow(s, t) << endl;
+    for (const auto &ps : solve.subsets(nums)) {
+        for (const auto &p : ps)
+            cout << p << ' ';
+        cout << endl;
+    }
 
     cout << "\nFinish";
     return 0;
