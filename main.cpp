@@ -2,63 +2,46 @@
 
 using namespace std;
 
-/// 79. 单词搜索
-// 回溯法  剪枝
+/// 84. 柱状图中最大的矩形
+// 单调栈
 class Solution {
-    string word_;
-    int n, m;
-    vector<pair<int, int>> dir = {{-1,0}, {1, 0}, {0, -1}, {0, 1}};
-    bool check(vector<vector<char>>& board, int i, int j, int k) {
-        if (board[i][j] != word_[k])
-            return false;
-        else if (k == word_.size() - 1)
-            return true;
-
-        board[i][j] = '0';
-        int bFind = false;
-        for (const auto &p : dir) {
-            int ni = i + p.first, nj = j + p.second;
-            if (ni >= 0 && ni < n && nj >= 0 && nj < m) {
-                if (check(board, ni, nj, k + 1)) {
-                    bFind = true;
-                    break;
-                }
-            }
-        }
-
-        board[i][j] = word_[k];
-        return bFind;
-    }
-
 public:
-    bool exist(vector<vector<char>>& board, string word) {
-        word_ = std::move(word);
-        n = board.size();
-        m = board[0].size();
+    int largestRectangleArea(vector<int>& heights) {
+        int n = heights.size();
+        stack<int> st;
+        vector<int> left(n), right(n);
 
-        for (int i = 0; i < n; ++i) {
-            for (int j = 0; j < m; ++j) {
-                if (check(board, i, j, 0))
-                    return true;
-            }
+        for (int i = 0; i < heights.size(); ++i) {
+            while (!st.empty() && heights[st.top()] >= heights[i])
+                st.pop();
+
+            left[i] = st.empty() ? -1 : st.top();
+            st.push(i);
         }
-        return false;
+
+        st = stack<int>();
+        for (int i = n-1; i >= 0; --i) {
+            while (!st.empty() && heights[st.top()] >= heights[i])
+                st.pop();
+
+            right[i] = st.empty() ? n : st.top();
+            st.push(i);
+        }
+
+        int res = 0;
+        for (int i = 0; i < n; ++i) {
+            res = max(res, (right[i] - left[i] - 1) * heights[i]);
+        }
+
+        return res;
     }
 };
 
-
 int main() {
-    vector<vector<char>> board = {
-            {'A', 'B', 'C', 'E'},
-            {'S', 'F', 'C', 'S'},
-            {'A', 'D', 'E', 'E'}
-    };
-
-    string word = "ABCCED";
+    vector<int> nums = {2,1,5,6,2,3};
 
     Solution solve;
-    cout << "res = " << solve.exist(board, word) << endl;
-
+    cout <<"res = " << solve.largestRectangleArea(nums) << endl;
 
     cout << "\nFinish";
     return 0;
