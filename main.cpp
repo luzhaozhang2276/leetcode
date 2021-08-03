@@ -2,46 +2,69 @@
 
 using namespace std;
 
-/// 84. 柱状图中最大的矩形
+/// 85. 最大矩形
 // 单调栈
 class Solution {
 public:
-    int largestRectangleArea(vector<int>& heights) {
-        int n = heights.size();
-        stack<int> st;
-        vector<int> left(n), right(n);
+    int maximalRectangle(vector<vector<char>>& matrix) {
+        int m = matrix.size();
+        if (m == 0) {
+            return 0;
+        }
+        int n = matrix[0].size();
+        vector<vector<int>> left(m, vector<int>(n, 0));
 
-        for (int i = 0; i < heights.size(); ++i) {
-            while (!st.empty() && heights[st.top()] >= heights[i])
-                st.pop();
-
-            left[i] = st.empty() ? -1 : st.top();
-            st.push(i);
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                if (matrix[i][j] == '1') {
+                    left[i][j] = (j == 0 ? 0: left[i][j - 1]) + 1;
+                }
+            }
         }
 
-        st = stack<int>();
-        for (int i = n-1; i >= 0; --i) {
-            while (!st.empty() && heights[st.top()] >= heights[i])
-                st.pop();
+        int ret = 0;
+        for (int j = 0; j < n; j++) { // 对于每一列，使用基于柱状图的方法
+            vector<int> up(m, 0), down(m, 0);
 
-            right[i] = st.empty() ? n : st.top();
-            st.push(i);
+            stack<int> stk;
+            for (int i = 0; i < m; i++) {
+                while (!stk.empty() && left[stk.top()][j] >= left[i][j]) {
+                    stk.pop();
+                }
+                up[i] = stk.empty() ? -1 : stk.top();
+                stk.push(i);
+            }
+            stk = stack<int>();
+            for (int i = m - 1; i >= 0; i--) {
+                while (!stk.empty() && left[stk.top()][j] >= left[i][j]) {
+                    stk.pop();
+                }
+                down[i] = stk.empty() ? m : stk.top();
+                stk.push(i);
+            }
+
+            for (int i = 0; i < m; i++) {
+                int height = down[i] - up[i] - 1;
+                int area = height * left[i][j];
+                ret = max(ret, area);
+            }
         }
-
-        int res = 0;
-        for (int i = 0; i < n; ++i) {
-            res = max(res, (right[i] - left[i] - 1) * heights[i]);
-        }
-
-        return res;
+        return ret;
     }
 };
 
+
 int main() {
-    vector<int> nums = {2,1,5,6,2,3};
+    vector<vector<char>> matrix = {
+            {'1','0','1','0','0'},
+            {'1','0','1','1','1'},
+            {'1','1','1','1','1'},
+            {'1','0','0','1','0'}
+    };
+
 
     Solution solve;
-    cout <<"res = " << solve.largestRectangleArea(nums) << endl;
+    cout <<"res = " << solve.maximalRectangle(matrix) << endl;
 
     cout << "\nFinish";
     return 0;
