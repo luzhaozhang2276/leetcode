@@ -2,22 +2,31 @@
 
 using namespace std;
 
-/// 96. 不同的二叉搜索树
-// DP
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode() : val(0), left(nullptr), right(nullptr) {}
+    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+    TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+};
+
+/// 98. 验证二叉搜索树
 class Solution {
+    long prev = LONG_MIN;
 public:
-    int numTrees(int n) {
-        vector<int> dp(n+1);
-        dp[0] = 1;
-        dp[1] = 1;
+    bool isValidBST(TreeNode* root) {
+        if (root == nullptr)
+            return true;
 
-        for (int i = 2; i <= n; ++i) {
-            for (int j = 1; j <= i; ++j) {
-                dp[i] += dp[j-1] * dp[i - j];
-            }
-        }
+        if (!isValidBST(root->left))
+            return false;
 
-        return dp[n];
+        if (root->val <= prev)
+            return false;
+        prev = root->val;
+
+        return isValidBST(root->right);
     }
 };
 
