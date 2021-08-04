@@ -2,37 +2,28 @@
 
 using namespace std;
 
-struct TreeNode {
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode() : val(0), left(nullptr), right(nullptr) {}
-    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
-    TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
-};
-
-/// 94. 二叉树的中序遍历
-// 递归
+/// 96. 不同的二叉搜索树
+// DP
 class Solution {
-    vector<int> res;
-    void recurve(TreeNode* root) {
-        if (root == nullptr)
-            return;
-        recurve(root->left);
-        res.push_back(root->val);
-        recurve(root->right);
-    }
 public:
-    vector<int> inorderTraversal(TreeNode* root) {
-        recurve(root);
-        return res;
+    int numTrees(int n) {
+        vector<int> dp(n+1);
+        dp[0] = 1;
+        dp[1] = 1;
+
+        for (int i = 2; i <= n; ++i) {
+            for (int j = 1; j <= i; ++j) {
+                dp[i] += dp[j-1] * dp[i - j];
+            }
+        }
+
+        return dp[n];
     }
 };
-
 
 int main() {
-
     Solution solve;
+    cout <<"res = " << solve.numTrees(4) << endl;
 
     cout << "\nFinish";
     return 0;
