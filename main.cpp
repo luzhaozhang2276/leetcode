@@ -11,28 +11,23 @@ struct TreeNode {
     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
 };
 
-/// 98. 验证二叉搜索树
+/// 101. 对称二叉树
 class Solution {
-    long prev = LONG_MIN;
 public:
-    bool isValidBST(TreeNode* root) {
-        if (root == nullptr)
+    bool isSymmetric(TreeNode* root) {
+        if (root->left == nullptr && root->right == nullptr)
             return true;
 
-        if (!isValidBST(root->left))
+        if (root->left == nullptr || root->right == nullptr)
             return false;
 
-        if (root->val <= prev)
-            return false;
-        prev = root->val;
-
-        return isValidBST(root->right);
+        return root->left->val == root->right->val &&
+               isSymmetric(root->left) && isSymmetric(root->right);
     }
 };
 
 int main() {
     Solution solve;
-    cout <<"res = " << solve.numTrees(4) << endl;
 
     cout << "\nFinish";
     return 0;
