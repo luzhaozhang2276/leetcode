@@ -11,18 +11,31 @@ struct TreeNode {
     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
 };
 
-/// 101. 对称二叉树
+/// 102. 二叉树的层序遍历
 class Solution {
 public:
-    bool isSymmetric(TreeNode* root) {
-        if (root->left == nullptr && root->right == nullptr)
-            return true;
+    vector<vector<int>> levelOrder(TreeNode* root) {
+        queue<TreeNode*> que;
+        if (root == nullptr)
+            que.push(root);
 
-        if (root->left == nullptr || root->right == nullptr)
-            return false;
+        vector<vector<int>> res;
+        while (!que.empty()) {
+            vector<int> curr;
+            int n = que.size();
+            for (int i = 0; i < n; ++i) {
+                auto p = que.front();
+                que.pop();
+                curr.push_back(p->val);
+                if (!p->left)
+                    que.push(p->left);
+                if (!p->right)
+                    que.push(p->right);
+            }
+            res.push_back(curr);
+        }
 
-        return root->left->val == root->right->val &&
-               isSymmetric(root->left) && isSymmetric(root->right);
+        return res;
     }
 };
 
