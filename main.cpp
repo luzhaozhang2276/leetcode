@@ -11,33 +11,35 @@ struct TreeNode {
     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
 };
 
-/// 102. 二叉树的层序遍历
+/// 104. 二叉树的最大深度
+#if 1
 class Solution {
 public:
-    vector<vector<int>> levelOrder(TreeNode* root) {
-        queue<TreeNode*> que;
+    int maxDepth(TreeNode* root) {
         if (root == nullptr)
-            que.push(root);
-
-        vector<vector<int>> res;
-        while (!que.empty()) {
-            vector<int> curr;
-            int n = que.size();
-            for (int i = 0; i < n; ++i) {
-                auto p = que.front();
-                que.pop();
-                curr.push_back(p->val);
-                if (!p->left)
-                    que.push(p->left);
-                if (!p->right)
-                    que.push(p->right);
-            }
-            res.push_back(curr);
-        }
-
-        return res;
+            return 0;
+        return max(maxDepth(root->left), maxDepth(root->right)) + 1;
     }
 };
+
+#elif 1
+class Solution {
+    int deep = 0;
+    int recurve(TreeNode* root, int level) {
+        if (root == nullptr)
+            return level;
+
+        deep = max(deep, recurve(root->left, level+1));
+        deep = max(deep, recurve(root->right, level+1));
+        return level + 1;
+    }
+public:
+    int maxDepth(TreeNode* root) {
+        deep = max(deep, recurve(root, 0));
+        return deep;
+    }
+};
+#endif
 
 int main() {
     Solution solve;
