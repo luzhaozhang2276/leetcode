@@ -2,6 +2,16 @@
 
 using namespace std;
 
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ * };
+ */
+
 struct TreeNode {
     int val;
     TreeNode *left;
@@ -11,39 +21,32 @@ struct TreeNode {
     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
 };
 
-/// 104. 二叉树的最大深度
-#if 1
+/// 114. 二叉树展开为链表
+// 寻找当前节点的前驱结点
 class Solution {
 public:
-    int maxDepth(TreeNode* root) {
-        if (root == nullptr)
-            return 0;
-        return max(maxDepth(root->left), maxDepth(root->right)) + 1;
+    void flatten(TreeNode* root) {
+        if (root == nullptr) return;
+        flatten(root->left);
+        flatten(root->right);
+        if (root->left != nullptr) {
+            auto pre = root->left;
+            while (pre->right != nullptr) pre = pre->right;
+            pre->right = root->right;
+            root->right = root->left;
+            root->left = nullptr;
+        }
+        root = root->right;
+        return;
     }
 };
-
-#elif 1
-class Solution {
-    int deep = 0;
-    int recurve(TreeNode* root, int level) {
-        if (root == nullptr)
-            return level;
-
-        deep = max(deep, recurve(root->left, level+1));
-        deep = max(deep, recurve(root->right, level+1));
-        return level + 1;
-    }
-public:
-    int maxDepth(TreeNode* root) {
-        deep = max(deep, recurve(root, 0));
-        return deep;
-    }
-};
-#endif
 
 int main() {
-    Solution solve;
+    TreeNode* root = new TreeNode(3);
 
-    cout << "\nFinish";
+    Solution s;
+
+
+    cout << "\nFinish" << endl;
     return 0;
 }
