@@ -1,52 +1,60 @@
-#include <bits/stdc++.h>
+#include <iostream>
+#include <bitset>
 
 using namespace std;
 
-/**
- * Definition for a binary tree node.
- * struct TreeNode {
- *     int val;
- *     TreeNode *left;
- *     TreeNode *right;
- *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
- * };
- */
-
-struct TreeNode {
+struct ListNode {
     int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode() : val(0), left(nullptr), right(nullptr) {}
-    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
-    TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+    ListNode *next;
+    ListNode() : val(0), next(nullptr) {}
+    ListNode(int x) : val(x), next(nullptr) {}
+    ListNode(int x, ListNode *next) : val(x), next(next) {}
 };
 
-/// 114. 二叉树展开为链表
-// 寻找当前节点的前驱结点
+/// 148. 排序链表
 class Solution {
 public:
-    void flatten(TreeNode* root) {
-        if (root == nullptr) return;
-        flatten(root->left);
-        flatten(root->right);
-        if (root->left != nullptr) {
-            auto pre = root->left;
-            while (pre->right != nullptr) pre = pre->right;
-            pre->right = root->right;
-            root->right = root->left;
-            root->left = nullptr;
+    ListNode* sortList(ListNode* head) {
+        /// step 1 : quit
+        if (head == nullptr || head->next == nullptr)
+            return head;
+
+        /// step 2.1 : cut
+        ListNode* slow = head;
+        ListNode* fast = head->next;
+        while (fast != nullptr && fast->next != nullptr) {
+            slow = slow->next;
+            fast = fast->next->next;
         }
-        root = root->right;
-        return;
+
+        ListNode* tmp = slow->next;
+        slow->next = nullptr;
+
+        /// step 3 : recurse
+        ListNode* left = sortList(head);
+        ListNode* right = sortList(tmp);
+
+        /// step 2.2 : merge
+        ListNode* dummy = new ListNode(0);
+        ListNode* ptr = dummy;
+        while (left != nullptr && right != nullptr) {
+            if (left->val < right->val) {
+                ptr->next = left;
+                left = left->next;
+            } else {
+                ptr->next = right;
+                right = right->next;
+            }
+            ptr = ptr->next;
+        }
+        ptr->next = (left != nullptr) ? left : right;
+
+        return dummy->next;
     }
 };
 
 int main() {
-    TreeNode* root = new TreeNode(3);
-
-    Solution s;
 
 
-    cout << "\nFinish" << endl;
     return 0;
 }
