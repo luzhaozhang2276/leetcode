@@ -1,60 +1,29 @@
-#include <iostream>
-#include <bitset>
-
+#include <bits/stdc++.h>
 using namespace std;
 
-struct ListNode {
-    int val;
-    ListNode *next;
-    ListNode() : val(0), next(nullptr) {}
-    ListNode(int x) : val(x), next(nullptr) {}
-    ListNode(int x, ListNode *next) : val(x), next(next) {}
-};
-
-/// 148. 排序链表
 class Solution {
 public:
-    ListNode* sortList(ListNode* head) {
-        /// step 1 : quit
-        if (head == nullptr || head->next == nullptr)
-            return head;
+    int findDuplicate(vector<int>& nums) {
+        int slow = 0, fast = 0;
+        do {
+            slow = nums[slow];
+            fast = nums[nums[fast]];
+        } while (slow != fast);
 
-        /// step 2.1 : cut
-        ListNode* slow = head;
-        ListNode* fast = head->next;
-        while (fast != nullptr && fast->next != nullptr) {
-            slow = slow->next;
-            fast = fast->next->next;
+        slow = 0;
+        while (slow != fast) {
+            slow = nums[slow];
+            fast = nums[fast];
         }
 
-        ListNode* tmp = slow->next;
-        slow->next = nullptr;
-
-        /// step 3 : recurse
-        ListNode* left = sortList(head);
-        ListNode* right = sortList(tmp);
-
-        /// step 2.2 : merge
-        ListNode* dummy = new ListNode(0);
-        ListNode* ptr = dummy;
-        while (left != nullptr && right != nullptr) {
-            if (left->val < right->val) {
-                ptr->next = left;
-                left = left->next;
-            } else {
-                ptr->next = right;
-                right = right->next;
-            }
-            ptr = ptr->next;
-        }
-        ptr->next = (left != nullptr) ? left : right;
-
-        return dummy->next;
+        return slow;
     }
 };
 
 int main() {
-
+    vector<int> nums = {1,3,4,2,2};
+    Solution solve;
+    cout << solve.findDuplicate(nums) << endl;
 
     return 0;
 }
