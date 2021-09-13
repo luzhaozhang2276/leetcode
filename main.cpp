@@ -2,28 +2,38 @@
 using namespace std;
 
 class Solution {
+private:
+    int BK(int x) {
+        int cnt = 0;
+        while (x != 0) {
+            x = x & (x - 1);
+            cnt++;
+        }
+        return cnt;
+    }
 public:
-    int findDuplicate(vector<int>& nums) {
-        int slow = 0, fast = 0;
-        do {
-            slow = nums[slow];
-            fast = nums[nums[fast]];
-        } while (slow != fast);
+    vector<int> countBits(int n) {
+        /// BK
+        //vector<int> res;
+        //for (int i = 0; i <= n; ++i) {
+        //    res.push_back(BK(i));
+        //}
 
-        slow = 0;
-        while (slow != fast) {
-            slow = nums[slow];
-            fast = nums[fast];
+        /// bit
+        vector<int> res(n+1);
+        for (int i = 1; i <= n; ++i) {
+            res[i] = res[i&(i-1)] + 1;
         }
 
-        return slow;
+        return res;
     }
 };
 
 int main() {
-    vector<int> nums = {1,3,4,2,2};
     Solution solve;
-    cout << solve.findDuplicate(nums) << endl;
+    for (const auto &p : solve.countBits(5))
+        cout << p << ' ';
+    cout << endl;
 
     return 0;
 }
