@@ -1,39 +1,51 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+/// BFS
 class Solution {
-private:
-    int BK(int x) {
-        int cnt = 0;
-        while (x != 0) {
-            x = x & (x - 1);
-            cnt++;
-        }
-        return cnt;
-    }
 public:
-    vector<int> countBits(int n) {
-        /// BK
-        //vector<int> res;
-        //for (int i = 0; i <= n; ++i) {
-        //    res.push_back(BK(i));
-        //}
-
-        /// bit
-        vector<int> res(n+1);
-        for (int i = 1; i <= n; ++i) {
-            res[i] = res[i&(i-1)] + 1;
+    bool canFinish(int numCourses, vector<vector<int>>& prerequisites) {
+        vector<int> degree(numCourses, 0);
+        vector<vector<int>> adjacency(numCourses);
+        for (const auto &p : prerequisites) {
+            degree[p[0]]++;
+            adjacency[p[1]].emplace_back(p[0]);
         }
 
-        return res;
+        queue<int> Q;
+        for (int i = 0; i < degree.size(); ++i) {
+            if (degree[i] == 0)
+                Q.push(i);
+        }
+
+        while (!Q.empty()) {
+            int pre = Q.front();
+            Q.pop();
+            numCourses--;
+            for (const auto &p : adjacency[pre]) {
+                degree[p]--;
+                if (degree[p] == 0)
+                    Q.push(p);
+            }
+        }
+
+        return numCourses == 0;
     }
 };
 
 int main() {
+    vector<vector<int>> nums = {
+                                {2, 1},
+                                {4, 1},
+                                {4, 2},
+                                {3, 2},
+                                {5, 3},
+                                {5, 4}};
+
+    nums = {{1, 0}};
     Solution solve;
-    for (const auto &p : solve.countBits(5))
-        cout << p << ' ';
-    cout << endl;
+    cout << solve.canFinish(2, nums) << endl;
+//    cout << solve.canFinish(6, nums) << endl;
 
     return 0;
 }
